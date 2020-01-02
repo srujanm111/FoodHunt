@@ -1,5 +1,4 @@
 import 'constants.dart';
-import 'package:phone_number/phone_number.dart';
 
 class Recipe {
 
@@ -11,7 +10,7 @@ class Recipe {
   Recipe(
       this._food, this._sellPrice, this._sellLocation, this._ingredients);
 
-  IngredientItem ingredients(int index) => _ingredients[index];
+  List<IngredientItem> get ingredients => _ingredients;
 
   SellLocation get sellLocation => _sellLocation;
 
@@ -51,7 +50,7 @@ class User {
   String _password;
   int _money;
 
-  User(this._phoneNumber, this._firstName, this._lastName, this._password);
+  User(this._phoneNumber, this._firstName, this._lastName, this._password, this._money);
 
   String get password => _password;
 

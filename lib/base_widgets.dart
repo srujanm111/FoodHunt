@@ -1,11 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:food_hunt/data_widgets.dart';
+import 'package:food_hunt/main_sheet.dart';
 import 'package:food_hunt/recipe_widgets.dart';
 import 'package:food_hunt/custom_sheet_widgets.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'constants.dart';
+import 'data_classes.dart';
 
 
 class BasePage extends StatefulWidget {
@@ -18,6 +23,8 @@ class BasePage extends StatefulWidget {
 }
 
 class _BasePageState extends State<BasePage> {
+
+  Widget _currentSheet = MainSheet();
 
   double _panelHeightOpen = 575.0;
   double _panelHeightClosed = 95.0;
@@ -37,41 +44,31 @@ class _BasePageState extends State<BasePage> {
     tilt: 50.0,
   );
 
+  PanelController _panelController = new PanelController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SlidingUpPanel(
+        controller: _panelController,
         maxHeight: _panelHeightOpen,
         minHeight: _panelHeightClosed,
+        onPanelClosed: () {
+          setState(() {});
+          _panelController.show();
+        },
         parallaxEnabled: false,
         body: _body(),
-        panel: _panel(),
+        panel: _createPanel(),
         borderRadius: BorderRadius.only(topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0)),
       ),
     );
   }
 
-  Widget _panel() {
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.all(Radius.circular(12.0))
-                ),
-              ),
-            ],
-          ),
-        ),
-        ListHeader(title: "Recomended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {},),),
-      ],
+  Widget _createPanel() {
+    return Controls(
+      changeSheet: _changeSheetContents,
+      child: _currentSheet,
     );
   }
 
@@ -92,5 +89,28 @@ class _BasePageState extends State<BasePage> {
         .loadString('assets/map_style.json');
     controller.setMapStyle(value);
   }
+
+  void _changeSheetContents(Widget sheet) {
+    _panelController.hide();
+    _currentSheet = sheet;
+  }
+
+}
+
+class Controls extends InheritedWidget {
+
+  final Function changeSheet;
+
+  Controls({
+    @required this.changeSheet,
+    @required Widget child,
+  }) : super(child: child);
+
+  static Controls of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<Controls>();
+  }
+
+  @override
+  bool updateShouldNotify(Controls oldWidget) => oldWidget.changeSheet != changeSheet;
 
 }

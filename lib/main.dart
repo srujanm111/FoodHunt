@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -25,7 +26,9 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
           title: TextStyle(fontSize: 20, color: black),
           subtitle: TextStyle(fontSize: 15, color: black),
-          display1: TextStyle(fontSize: 13, color: primary)
+          display1: TextStyle(fontSize: 13, color: primary),
+          headline: TextStyle(fontSize: 17, color: black, fontWeight: FontWeight.w600),
+          caption: TextStyle(fontSize: 13, color: darkGray)
         )
       ),
       home: BasePage(title: 'Flutter Demo Home Page'),

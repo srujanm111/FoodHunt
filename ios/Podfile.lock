@@ -8,25 +8,35 @@ PODS:
   - GoogleMaps/Base (2.7.0)
   - GoogleMaps/Maps (2.7.0):
     - GoogleMaps/Base
+  - phone_number (0.6.0):
+    - Flutter
+    - PhoneNumberKit/PhoneNumberKitCore (~> 3.1.0)
+  - PhoneNumberKit/PhoneNumberKitCore (3.1.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
+  - phone_number (from `.symlinks/plugins/phone_number/ios`)
 
 SPEC REPOS:
   trunk:
     - GoogleMaps
+    - PhoneNumberKit
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   google_maps_flutter:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
+  phone_number:
+    :path: ".symlinks/plugins/phone_number/ios"
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   google_maps_flutter: d0dd62f5a7d39bae61057eb9f52dd778d99c7c6c
   GoogleMaps: f79af95cb24d869457b1f961c93d3ce8b2f3b848
+  phone_number: a64f14bf7da986ebe7319a6b6fc0e734129ded65
+  PhoneNumberKit: adffe4e128af1918386e09e7421d3d851a2987af
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 

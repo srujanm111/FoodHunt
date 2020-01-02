@@ -37,10 +37,7 @@ class SheetHeader extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: actionButton,
         ),
-        Container(
-          height: 1,
-          color: border,
-        ),
+        ListDivider()
       ],
     );
   }
@@ -60,12 +57,10 @@ class SheetHeader extends StatelessWidget {
   }
 
   Widget _closeButton() {
-    return Container(
+    return Image(
+      image: AssetImage('assets/icons/close.png'),
       height: 30,
       width: 30,
-      child: Center(
-        child: Image(image: AssetImage('assets/icons/close.png')),
-      ),
     );
   }
 
@@ -94,13 +89,7 @@ class ListHeader extends StatelessWidget {
             children: _rowWidgets(context),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Container(
-            height: 1,
-            color: border,
-          ),
-        ),
+        ListDivider(edgePadding: 10,)
       ],
     );
   }
@@ -130,6 +119,51 @@ class ListActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPress,
       child: Text(title, style: Theme.of(context).textTheme.display1,),
+    );
+  }
+
+}
+
+class ListDivider extends StatelessWidget {
+
+  final double edgePadding;
+
+  ListDivider({
+    this.edgePadding = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: edgePadding),
+      child: Container(
+        height: 1,
+        color: border,
+      ),
+    );
+  }
+
+}
+
+class SheetTab extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 40,
+            height: 5,
+            decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.all(Radius.circular(12.0))
+            ),
+          ),
+        ],
+      ),
     );
   }
 
