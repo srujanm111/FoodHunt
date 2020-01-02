@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 
-class SheetHeader extends StatefulWidget {
+class SheetHeader extends StatelessWidget {
 
   final String title;
   final Widget subTitle;
@@ -16,13 +16,6 @@ class SheetHeader extends StatefulWidget {
     this.subTitle,
     this.actionButton
   });
-
-  @override
-  State createState() => _SheetHeaderState();
-
-}
-
-class _SheetHeaderState extends State<SheetHeader> {
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +35,7 @@ class _SheetHeaderState extends State<SheetHeader> {
         ),
         Padding(
           padding: const EdgeInsets.all(20),
-          child: widget.actionButton,
+          child: actionButton,
         ),
         Container(
           height: 1,
@@ -53,14 +46,14 @@ class _SheetHeaderState extends State<SheetHeader> {
   }
 
   Widget _leading(BuildContext context) {
-    if (widget.subTitle == null) {
-      return Text(widget.title, style: Theme.of(context).textTheme.title,);
+    if (subTitle == null) {
+      return Text(title, style: Theme.of(context).textTheme.title,);
     } else {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(widget.title, style: Theme.of(context).textTheme.title,),
-          widget.subTitle,
+          Text(title, style: Theme.of(context).textTheme.title,),
+          subTitle,
         ],
       );
     }
@@ -78,8 +71,7 @@ class _SheetHeaderState extends State<SheetHeader> {
 
 }
 
-
-class ListHeader extends StatefulWidget {
+class ListHeader extends StatelessWidget {
 
   final String title;
   final Widget trailing;
@@ -88,13 +80,6 @@ class ListHeader extends StatefulWidget {
     @required this.title,
     this.trailing,
   });
-
-  @override
-  State createState() => _ListHeaderState();
-
-}
-
-class _ListHeaderState extends State<ListHeader> {
 
   @override
   Widget build(BuildContext context) {
@@ -121,17 +106,16 @@ class _ListHeaderState extends State<ListHeader> {
   }
 
   List<Widget> _rowWidgets(BuildContext context) {
-    if (widget.trailing != null) {
-      return [Text(widget.title, style: Theme.of(context).textTheme.subtitle,), widget.trailing];
+    if (trailing != null) {
+      return [Text(title, style: Theme.of(context).textTheme.subtitle,), trailing];
     } else {
-      return [Text(widget.title, style: Theme.of(context).textTheme.subtitle,)];
+      return [Text(title, style: Theme.of(context).textTheme.subtitle,)];
     }
   }
 
 }
 
-
-class ListActionButton extends StatefulWidget {
+class ListActionButton extends StatelessWidget {
 
   final String title;
   final Function onPress;
@@ -142,19 +126,11 @@ class ListActionButton extends StatefulWidget {
   });
 
   @override
-  State createState() => _ListActionButtonState();
-
-}
-
-class _ListActionButtonState extends State<ListActionButton> {
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onPress,
-      child: Text(widget.title, style: Theme.of(context).textTheme.display1,),
+      onTap: onPress,
+      child: Text(title, style: Theme.of(context).textTheme.display1,),
     );
   }
 
 }
-

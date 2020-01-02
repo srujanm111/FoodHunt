@@ -19,6 +19,7 @@ environment:
 dependencies:
   sliding_up_panel: ^0.3.6
   google_maps_flutter: ^0.5.21+15
+  phone_number: ^0.6.0+1
   flutter:
     sdk: flutter
 
@@ -48,8 +49,11 @@ flutter:
   #  - images/a_dot_ham.jpeg
 
   assets:
-    - assets/map_style.json
+    - assets/
     - assets/icons/
+    - assets/icons/food/
+    - assets/icons/ingredients/
+    - assets/icons/sell_categories/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
