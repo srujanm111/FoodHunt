@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
+import 'package:food_hunt/recipe_panels.dart';
 
 import 'constants.dart';
-import 'custom_sheet_widgets.dart';
+import 'custom_panel_widgets.dart';
 import 'data_classes.dart';
 import 'data_widgets.dart';
 
-class MainSheet extends Panel {
+class MainPanel extends Panel {
 
   static final double scale = 0.8;
 
-  MainSheet(double screenHeight) : super(panelHeightOpen: screenHeight * scale);
+  MainPanel(double screenHeight) : super(panelHeightOpen: screenHeight * scale);
 
   @override
   _MainSheetState createState() => _MainSheetState();
 }
 
-class _MainSheetState extends State<MainSheet> {
+class _MainSheetState extends State<MainPanel> {
 
   List<Recipe> recipes = [
     Recipe(Food.sandwich, 20, SellLocation.restaurant, [
@@ -60,13 +61,13 @@ class _MainSheetState extends State<MainSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SheetTab(),
+        PanelTab(),
         Container(
-          height: MediaQuery.of(context).size.height * MainSheet.scale - 25,
+          height: MediaQuery.of(context).size.height * MainPanel.scale - 25,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
-              children: _fullContents(),
+              children: _fullContents(context),
             ),
           ),
         ),
@@ -74,9 +75,9 @@ class _MainSheetState extends State<MainSheet> {
     );
   }
 
-  List<Widget> _fullContents() {
+  List<Widget> _fullContents(BuildContext context) {
     List<Widget> widgets  = [];
-    widgets.addAll(_recommendedRecipeHuntList());
+    widgets.addAll(_recommendedRecipeHuntList(context));
     widgets.add(SizedBox(height: 10,));
     widgets.addAll(_foodToSellList());
     widgets.add(SizedBox(height: 10,));
@@ -85,10 +86,10 @@ class _MainSheetState extends State<MainSheet> {
     return widgets;
   }
 
-  List<Widget> _recommendedRecipeHuntList() {
+  List<Widget> _recommendedRecipeHuntList(BuildContext context) {
     List<Widget> widgets  = [];
     widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {
-
+      Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
     },),),);
     for (Recipe recipe in recipes) {
       widgets.add(RecommendedRecipeItem(recipe: recipe,));

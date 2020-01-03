@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:food_hunt/data_widgets.dart';
 import 'package:food_hunt/main_panel.dart';
-import 'package:food_hunt/recipe_panel.dart';
-import 'package:food_hunt/custom_sheet_widgets.dart';
+import 'package:food_hunt/recipe_panels.dart';
+import 'package:food_hunt/custom_panel_widgets.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -45,7 +45,7 @@ class _BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     if (_currentPanel == null) {
-      _currentPanel = MainSheet(MediaQuery.of(context).size.height);
+      _currentPanel = MainPanel(MediaQuery.of(context).size.height);
     }
     return Scaffold(
       body: SlidingUpPanel(
@@ -66,7 +66,7 @@ class _BasePageState extends State<BasePage> {
 
   Widget _createPanel() {
     return Controls(
-      changeSheet: _changePanelContents,
+      changePanel: _changePanelContents,
       child: _currentPanel,
     );
   }
@@ -98,10 +98,10 @@ class _BasePageState extends State<BasePage> {
 
 class Controls extends InheritedWidget {
 
-  final Function changeSheet;
+  final Function changePanel;
 
   Controls({
-    @required this.changeSheet,
+    @required this.changePanel,
     @required Widget child,
   }) : super(child: child);
 
@@ -110,7 +110,7 @@ class Controls extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(Controls oldWidget) => oldWidget.changeSheet != changeSheet;
+  bool updateShouldNotify(Controls oldWidget) => oldWidget.changePanel != changePanel;
 
 }
 

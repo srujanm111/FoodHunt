@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 import 'constants.dart';
 
-class SheetHeader extends StatelessWidget {
+class PanelHeader extends StatelessWidget {
 
   final String title;
   final Widget subTitle;
   final Widget actionButton;
   final Function onClose;
 
-  SheetHeader({
+  PanelHeader({
     @required this.title,
     @required this.onClose,
     this.subTitle,
@@ -21,25 +21,37 @@ class SheetHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _leading(context),
-              _closeButton(),
-            ],
-          ),
+      children: _contents(context),
+    );
+  }
+
+  List<Widget> _contents(BuildContext context) {
+    List<Widget> widgets = [];
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _leading(context),
+            _closeButton(),
+          ],
         ),
+      ),
+    );
+    if (actionButton != null) {
+      widgets.add(
         Padding(
           padding: const EdgeInsets.all(20),
           child: actionButton,
         ),
-        ListDivider()
-      ],
-    );
+      );
+    } else {
+      widgets.add(SizedBox(height: 10,));
+    }
+    widgets.add(ListDivider());
+    return widgets;
   }
 
   Widget _leading(BuildContext context) {
@@ -57,10 +69,13 @@ class SheetHeader extends StatelessWidget {
   }
 
   Widget _closeButton() {
-    return Image(
-      image: AssetImage('assets/icons/close.png'),
-      height: 30,
-      width: 30,
+    return GestureDetector(
+      onTap: onClose,
+      child: Image(
+        image: AssetImage('assets/icons/close.png'),
+        height: 30,
+        width: 30,
+      ),
     );
   }
 
@@ -145,7 +160,7 @@ class ListDivider extends StatelessWidget {
 
 }
 
-class SheetTab extends StatelessWidget {
+class PanelTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {

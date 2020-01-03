@@ -8,6 +8,8 @@ const Color green = Color(0xFF0DC018);
 const Color lightGray = Color(0xFFD8D8D8);
 const Color yellow = Color(0xFFE79D1C);
 const Color black = Color(0xFF000000);
+const Color orange = Color(0xFFE76129);
+const Color white = Color(0xFFFFFFFF);
 
 enum Food {
   pasta,
