@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:food_hunt/custom_panel_widgets.dart';
+import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/data_widgets.dart';
 
 import 'base_page.dart';
@@ -97,7 +97,7 @@ class RecipeHuntPanel extends Panel {
 
   final Recipe recipe;
   
-  RecipeHuntPanel(this.recipe) : super(panelHeightClosed: 180, panelHeightOpen: 270.0 + recipe.ingredients.length * 50);
+  RecipeHuntPanel(this.recipe) : super(panelHeightClosed: 180, panelHeightOpen: 270.0 + recipe.ingredients.length * 50, isOpenByDefault: false);
 
   @override
   State createState() => _RecipesHuntPanelState();
@@ -116,7 +116,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
             PanelHeader(
               title: foodName[widget.recipe.food],
               subTitle: _sub(context),
-              actionButton: _button(),
+              actionButton: _button(context),
               onClose: () {
                 Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
               },
@@ -149,12 +149,135 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
     );
   }
 
-  Widget _button() {
+  Widget _button(BuildContext context) {
     return CupertinoButton(
       color: primary,
       child: Text("Start Hunt"),
-      onPressed: () {},
+      onPressed: () {
+        //Controls.of(context).startHunt(widget.recipe);
+        Controls.of(context).changePanel(HuntPanel(widget.recipe));
+      },
     );
+  }
+
+  int _ingredientsFoundCount() {
+    int count = 0;
+    for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      if (ingredientItem.found) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  List<Widget> _ingredientList() {
+    List<Widget> widgets = [];
+    for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      widgets.add(IngredientListItem(ingredientItem));
+      widgets.add(ListDivider(edgePadding: 20,));
+    }
+    widgets.removeLast();
+    return widgets;
+  }
+
+}
+
+
+class HuntPanel extends Panel {
+
+  final Recipe recipe;
+
+  HuntPanel(this.recipe) : super(panelHeightClosed: 114, panelHeightOpen: 200.0 + recipe.ingredients.length * 50);
+
+  @override
+  _HuntPanelState createState() => _HuntPanelState();
+}
+
+class _HuntPanelState extends State<HuntPanel> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        PanelTab(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(foodName[widget.recipe.food], style: Theme.of(context).textTheme.title,),
+                  Row(
+                    children: <Widget>[
+                      Text("${sellLocationName[widget.recipe.sellLocation]} •", style: Theme.of(context).textTheme.subtitle,),
+                      Container(
+                          height: 24,
+                          width: 24,
+                          child: Image(image: AssetImage('assets/icons/money.png'), color: green,)
+                      ),
+                      Text(widget.recipe.sellPrice.toString(), style: Theme.of(context).textTheme.display1.apply(color: green),),
+                    ],
+                  )
+                ],
+              ),
+              _actionButton(context),
+            ],
+          ),
+        ),
+        SizedBox(height: 20,),
+        ListDivider(),
+        SizedBox(height: 15,),
+        ListHeader(
+          title: "Ingredients",
+          trailing: Text("${_ingredientsFoundCount()}/${widget.recipe.ingredients.length} Found", style: Theme.of(context).textTheme.caption,),
+        ),
+        Column(
+          children: _ingredientList(),
+        )
+      ],
+    );
+  }
+
+  Widget _actionButton(BuildContext context) {
+    if (_isHuntDone()) {
+      return _createButton(context, "Finish", green, () {
+
+      });
+    } else {
+      return _createButton(context, "Exit", red, () {
+        //Controls.of(context).closeHunt();
+        Controls.of(context).changePanel(RecipeHuntPanel(widget.recipe));
+      });
+    }
+  }
+
+  Widget _createButton(BuildContext context, String text, Color color, Function onPress) {
+    return GestureDetector(
+      onTap: onPress,
+      child: Container(
+        height: 50,
+        width: 100,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(text, style: Theme.of(context).textTheme.title.apply(color: white),),
+        ),
+      ),
+    );
+  }
+
+  bool _isHuntDone() {
+    for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      if (!ingredientItem.found) {
+        return false;
+      }
+    }
+    return true;
   }
 
   int _ingredientsFoundCount() {

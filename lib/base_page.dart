@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:food_hunt/data_widgets.dart';
 import 'package:food_hunt/main_panel.dart';
+import 'package:food_hunt/panel.dart';
 import 'package:food_hunt/recipe_panels.dart';
-import 'package:food_hunt/custom_panel_widgets.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -26,6 +25,8 @@ class _BasePageState extends State<BasePage> {
 
   PanelController _panelController = new PanelController();
   Panel _currentPanel;
+
+  PreferredSizeWidget _huntBar;
 
   static const String _API_KEY = 'AIzaSyAI4tTbcJYVABnw7tJ4iP-Sx4EFyRadrAo';
 
@@ -48,15 +49,11 @@ class _BasePageState extends State<BasePage> {
       _currentPanel = MainPanel(MediaQuery.of(context).size.height);
     }
     return Scaffold(
+      appBar: _huntBar,
       body: SlidingUpPanel(
         controller: _panelController,
         maxHeight: _currentPanel.panelHeightOpen,
         minHeight: _currentPanel.panelHeightClosed,
-        onPanelClosed: () {
-          setState(() {});
-          _panelController.show();
-        },
-        parallaxEnabled: false,
         body: _body(),
         panel: _createPanel(),
         borderRadius: BorderRadius.only(topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0)),
@@ -67,6 +64,9 @@ class _BasePageState extends State<BasePage> {
   Widget _createPanel() {
     return Controls(
       changePanel: _changePanelContents,
+      startHunt: _startHunt,
+      huntForIngredient: _huntForIngredient,
+      closeHunt: _closeHunt,
       child: _currentPanel,
     );
   }
@@ -91,7 +91,29 @@ class _BasePageState extends State<BasePage> {
 
   void _changePanelContents(Widget sheet) {
     _panelController.hide();
-    _currentPanel = sheet;
+  }
+
+  void _startHunt(Recipe recipe) {
+    // replace with ingredient closest to current location
+    for (IngredientItem ingredientItem in recipe.ingredients) {
+      if (!ingredientItem.found) {
+        _huntBar = AppBar(
+          title: Text(ingredientName[ingredientItem.ingredient]),
+        );
+        break;
+      }
+    }
+  }
+
+  void _huntForIngredient(IngredientItem ingredient) {
+    _huntBar = AppBar(
+      title: Text(ingredientName[ingredient.ingredient]),
+    );
+    setState(() {});
+  }
+
+  void _closeHunt() {
+    _huntBar = null;
   }
 
 }
@@ -99,9 +121,15 @@ class _BasePageState extends State<BasePage> {
 class Controls extends InheritedWidget {
 
   final Function changePanel;
+  final Function startHunt;
+  final Function huntForIngredient;
+  final Function closeHunt;
 
   Controls({
     @required this.changePanel,
+    @required this.startHunt,
+    @required this.huntForIngredient,
+    @required this.closeHunt,
     @required Widget child,
   }) : super(child: child);
 
@@ -118,10 +146,12 @@ abstract class Panel extends StatefulWidget {
 
   final double panelHeightOpen;
   final double panelHeightClosed;
+  final bool isOpenByDefault;
 
   Panel({
     this.panelHeightOpen = 575.0, 
     this.panelHeightClosed = 95.0,
+    this.isOpenByDefault = true,
   });
   
 }

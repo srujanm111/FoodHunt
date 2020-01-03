@@ -10,6 +10,7 @@ const Color yellow = Color(0xFFE79D1C);
 const Color black = Color(0xFF000000);
 const Color orange = Color(0xFFE76129);
 const Color white = Color(0xFFFFFFFF);
+const Color red = Color(0xFFF5492F);
 
 enum Food {
   pasta,

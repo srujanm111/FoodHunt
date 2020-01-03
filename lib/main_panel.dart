@@ -3,7 +3,7 @@ import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/recipe_panels.dart';
 
 import 'constants.dart';
-import 'custom_panel_widgets.dart';
+import 'panel_widgets.dart';
 import 'data_classes.dart';
 import 'data_widgets.dart';
 
