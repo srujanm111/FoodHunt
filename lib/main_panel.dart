@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:food_hunt/base_widgets.dart';
+import 'package:food_hunt/base_page.dart';
 
 import 'constants.dart';
 import 'custom_sheet_widgets.dart';
 import 'data_classes.dart';
 import 'data_widgets.dart';
 
-class MainSheet extends StatefulWidget {
+class MainSheet extends Panel {
+
+  static final double scale = 0.8;
+
+  MainSheet(double screenHeight) : super(panelHeightOpen: screenHeight * scale);
 
   @override
   _MainSheetState createState() => _MainSheetState();
@@ -58,7 +62,7 @@ class _MainSheetState extends State<MainSheet> {
       children: <Widget>[
         SheetTab(),
         Container(
-          height: 550,
+          height: MediaQuery.of(context).size.height * MainSheet.scale - 25,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -83,7 +87,9 @@ class _MainSheetState extends State<MainSheet> {
 
   List<Widget> _recommendedRecipeHuntList() {
     List<Widget> widgets  = [];
-    widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {Controls.of(context).changeSheet(Container());},),),);
+    widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {
+
+    },),),);
     for (Recipe recipe in recipes) {
       widgets.add(RecommendedRecipeItem(recipe: recipe,));
       widgets.add(ListDivider(edgePadding: 15,));

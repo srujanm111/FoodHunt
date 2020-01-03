@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:food_hunt/data_widgets.dart';
-import 'package:food_hunt/main_sheet.dart';
-import 'package:food_hunt/recipe_widgets.dart';
+import 'package:food_hunt/main_panel.dart';
+import 'package:food_hunt/recipe_panel.dart';
 import 'package:food_hunt/custom_sheet_widgets.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,8 @@ class BasePage extends StatefulWidget {
 
 class _BasePageState extends State<BasePage> {
 
-  Widget _currentSheet = MainSheet();
-
-  double _panelHeightOpen = 575.0;
-  double _panelHeightClosed = 95.0;
+  PanelController _panelController = new PanelController();
+  Panel _currentPanel;
 
   static const String _API_KEY = 'AIzaSyAI4tTbcJYVABnw7tJ4iP-Sx4EFyRadrAo';
 
@@ -44,15 +42,16 @@ class _BasePageState extends State<BasePage> {
     tilt: 50.0,
   );
 
-  PanelController _panelController = new PanelController();
-
   @override
   Widget build(BuildContext context) {
+    if (_currentPanel == null) {
+      _currentPanel = MainSheet(MediaQuery.of(context).size.height);
+    }
     return Scaffold(
       body: SlidingUpPanel(
         controller: _panelController,
-        maxHeight: _panelHeightOpen,
-        minHeight: _panelHeightClosed,
+        maxHeight: _currentPanel.panelHeightOpen,
+        minHeight: _currentPanel.panelHeightClosed,
         onPanelClosed: () {
           setState(() {});
           _panelController.show();
@@ -67,8 +66,8 @@ class _BasePageState extends State<BasePage> {
 
   Widget _createPanel() {
     return Controls(
-      changeSheet: _changeSheetContents,
-      child: _currentSheet,
+      changeSheet: _changePanelContents,
+      child: _currentPanel,
     );
   }
 
@@ -90,9 +89,9 @@ class _BasePageState extends State<BasePage> {
     controller.setMapStyle(value);
   }
 
-  void _changeSheetContents(Widget sheet) {
+  void _changePanelContents(Widget sheet) {
     _panelController.hide();
-    _currentSheet = sheet;
+    _currentPanel = sheet;
   }
 
 }
@@ -113,4 +112,16 @@ class Controls extends InheritedWidget {
   @override
   bool updateShouldNotify(Controls oldWidget) => oldWidget.changeSheet != changeSheet;
 
+}
+
+abstract class Panel extends StatefulWidget {
+
+  final double panelHeightOpen;
+  final double panelHeightClosed;
+
+  Panel({
+    this.panelHeightOpen = 575.0, 
+    this.panelHeightClosed = 95.0,
+  });
+  
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/constants.dart';
 
-import 'base_widgets.dart';
+import 'base_page.dart';
 
 void main() => runApp(MyApp());
 
