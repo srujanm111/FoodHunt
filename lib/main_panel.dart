@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/recipe_panels.dart';
 import 'package:food_hunt/sell_panels.dart';
+import 'package:food_hunt/social_panels.dart';
 
 import 'constants.dart';
 import 'panel_widgets.dart';
@@ -121,7 +122,9 @@ class _MainSheetState extends State<MainPanel> {
 
   List<Widget> _friendsNearYouList() {
     List<Widget> widgets  = [];
-    widgets.add(ListHeader(title: "Friends Near You", trailing: ListActionButton(title: "View All", onPress: () {},),),);
+    widgets.add(ListHeader(title: "Friends Near You", trailing: ListActionButton(title: "View All", onPress: () {
+      Controls.of(context).changePanel(SocialListPanel(MediaQuery.of(context).size.height));
+    },),),);
     for (Friend friend in friends) {
       widgets.add(FriendsNearYouItem(friend: friend,));
       widgets.add(ListDivider(edgePadding: 15,));

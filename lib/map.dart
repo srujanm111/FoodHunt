@@ -41,20 +41,25 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      child: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(latitude, longitude),
-          zoom: 12,
-          bearing: 90.0,
-          tilt: 50.0,
-        ),
-        mapType: MapType.normal,
-        onMapCreated: (GoogleMapController controller) {
-          _setStyle(controller);
-          _controller = controller;
+      child: GestureDetector(
+        onScaleUpdate: (scaleUpdates) {
+          print(scaleUpdates.rotation);
         },
-        myLocationButtonEnabled: false,
-        compassEnabled: false,
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: LatLng(latitude, longitude),
+            zoom: 12,
+            bearing: 90.0,
+            tilt: 50.0,
+          ),
+          mapType: MapType.normal,
+          onMapCreated: (GoogleMapController controller) {
+            _setStyle(controller);
+            _controller = controller;
+          },
+          myLocationButtonEnabled: false,
+          //compassEnabled: false,
+        ),
       ),
     );
   }

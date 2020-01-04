@@ -407,7 +407,66 @@ class FriendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Container(
+            height: 52,
+            width: 52,
+            decoration: BoxDecoration(
+              color: (friend is RegisteredFriend) ? primary : lightGray,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text("dist"),
+            ),
+          ),
+          SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text("${friend.firstName} ${friend.lastName}", style: Theme.of(context).textTheme.headline,),
+              SizedBox(height: 4),
+              Text(_description(), style: Theme.of(context).textTheme.caption,),
+            ],
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          (friend is RegisteredFriend) ? _sellValue(context) : Container(),
+        ],
+      ),
+    );
+  }
 
+  String _description() {
+    if (friend is RegisteredFriend) {
+      if ((friend as RegisteredFriend).isInContacts) {
+        return "In your contacts";
+      } else {
+        return "In game friend";
+      }
+    } else {
+      return "In your contacts";
+    }
+  }
+
+  Widget _sellValue(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Image(
+          image: AssetImage('assets/icons/money.png'),
+          color: green,
+          height: 24,
+          width: 24,
+        ),
+        Text((friend as RegisteredFriend).money.toString(), style: Theme.of(context).textTheme.subtitle.apply(color: green),)
+      ],
+    );
   }
 
 }
@@ -421,7 +480,6 @@ class IngredientListItem extends StatefulWidget {
   @override
   _IngredientListItemState createState() => _IngredientListItemState();
 }
-
 class _IngredientListItemState extends State<IngredientListItem> {
 
   @override
