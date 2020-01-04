@@ -17,7 +17,6 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  sliding_up_panel: ^0.3.6
   google_maps_flutter: ^0.5.21+15
   phone_number: ^0.6.0+1
   flutter:

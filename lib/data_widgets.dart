@@ -312,7 +312,87 @@ class SellRecipeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+            height: 65,
+            width: 50,
+            decoration: BoxDecoration(
+                color: primaryFaded,
+                borderRadius: BorderRadius.circular(14)
+            ),
+            child: Center(
+              child: Image(
+                image: AssetImage('assets/icons/food/${foodImageName[recipe.food]}'),
+                color: primary,
+                height: 40,
+                width: 40,
+              ),
+            ),
+          ),
+          SizedBox(width: 20,),
+          Flexible(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(foodName[recipe.food], style: Theme.of(context).textTheme.headline,),
+                SizedBox(height: 8,),
+                _sellValue(context),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: Row(
+              children: <Widget>[
+                Text(sellLocationName[recipe.sellLocation], style: Theme.of(context).textTheme.subtitle,),
+                SizedBox(width: 8,),
+                _sellLocationIcon(),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
+  Widget _sellValue(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        Image(
+          image: AssetImage('assets/icons/money.png'),
+          color: green,
+          height: 24,
+          width: 24,
+        ),
+        Text(recipe.sellPrice.toString(), style: Theme.of(context).textTheme.subtitle.apply(color: green),)
+      ],
+    );
+  }
+
+  Widget _sellLocationIcon() {
+    return Container(
+      height: 33,
+      width: 33,
+      decoration: BoxDecoration(
+          color: primary,
+          shape: BoxShape.circle
+      ),
+      child: Center(
+        child: Image(
+          image: AssetImage('assets/icons/sell_categories/${sellLocationImageName[recipe.sellLocation]}'),
+          color: white,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
   }
 
 }

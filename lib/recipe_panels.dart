@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/data_widgets.dart';
-
-import 'base_page.dart';
 import 'constants.dart';
 import 'data_classes.dart';
 import 'main_panel.dart';
@@ -57,6 +56,9 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
     return Column(
       children: <Widget>[
         PanelTab(),
+        PanelHeader(title: "Recipes", onClose: () {
+          Controls.of(context).changePanel(MainPanel(MediaQuery.of(context).size.height));
+        },),
         Container(
           height: MediaQuery.of(context).size.height * RecipesListPanel.scale - 80,
           child: SingleChildScrollView(
@@ -72,11 +74,6 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
   
   List<Widget> _contents() {
     List<Widget> widgets = [];
-    widgets.add(
-      PanelHeader(title: "Recipes", onClose: () {
-        Controls.of(context).changePanel(MainPanel(MediaQuery.of(context).size.height));
-      },)
-    );
     for (Recipe recipe in recipes) {
       widgets.add(GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -115,8 +112,8 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
           children: [
             PanelHeader(
               title: foodName[widget.recipe.food],
-              subTitle: _sub(context),
-              actionButton: _button(context),
+              subTitle: _sub(),
+              actionButton: _button(),
               onClose: () {
                 Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
               },
@@ -135,7 +132,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
     );
   }
 
-  Widget _sub(BuildContext context) {
+  Widget _sub() {
     return Row(
       children: <Widget>[
         Text("${sellLocationName[widget.recipe.sellLocation]} •", style: Theme.of(context).textTheme.subtitle,),
@@ -149,12 +146,12 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
     );
   }
 
-  Widget _button(BuildContext context) {
+  Widget _button() {
     return CupertinoButton(
       color: primary,
       child: Text("Start Hunt"),
       onPressed: () {
-        //Controls.of(context).startHunt(widget.recipe);
+        Controls.of(context).startHunt(widget.recipe);
         Controls.of(context).changePanel(HuntPanel(widget.recipe));
       },
     );
@@ -223,7 +220,7 @@ class _HuntPanelState extends State<HuntPanel> {
                   )
                 ],
               ),
-              _actionButton(context),
+              _actionButton(),
             ],
           ),
         ),
@@ -241,20 +238,20 @@ class _HuntPanelState extends State<HuntPanel> {
     );
   }
 
-  Widget _actionButton(BuildContext context) {
+  Widget _actionButton() {
     if (_isHuntDone()) {
-      return _createButton(context, "Finish", green, () {
+      return _createButton("Finish", green, () {
 
       });
     } else {
-      return _createButton(context, "Exit", red, () {
-        //Controls.of(context).closeHunt();
+      return _createButton("Exit", red, () {
+        Controls.of(context).closeHunt();
         Controls.of(context).changePanel(RecipeHuntPanel(widget.recipe));
       });
     }
   }
 
-  Widget _createButton(BuildContext context, String text, Color color, Function onPress) {
+  Widget _createButton(String text, Color color, Function onPress) {
     return GestureDetector(
       onTap: onPress,
       child: Container(
@@ -293,7 +290,15 @@ class _HuntPanelState extends State<HuntPanel> {
   List<Widget> _ingredientList() {
     List<Widget> widgets = [];
     for (IngredientItem ingredientItem in widget.recipe.ingredients) {
-      widgets.add(IngredientListItem(ingredientItem));
+      widgets.add(GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: IngredientListItem(ingredientItem),
+        onTap: () {
+          if (!ingredientItem.found) {
+            Controls.of(context).huntForIngredient(ingredientItem);
+          }
+        },
+      ));
       widgets.add(ListDivider(edgePadding: 20,));
     }
     widgets.removeLast();

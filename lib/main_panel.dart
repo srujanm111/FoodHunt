@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/recipe_panels.dart';
+import 'package:food_hunt/sell_panels.dart';
 
 import 'constants.dart';
 import 'panel_widgets.dart';
@@ -67,7 +68,7 @@ class _MainSheetState extends State<MainPanel> {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
-              children: _fullContents(context),
+              children: _contents(),
             ),
           ),
         ),
@@ -75,9 +76,9 @@ class _MainSheetState extends State<MainPanel> {
     );
   }
 
-  List<Widget> _fullContents(BuildContext context) {
+  List<Widget> _contents() {
     List<Widget> widgets  = [];
-    widgets.addAll(_recommendedRecipeHuntList(context));
+    widgets.addAll(_recommendedRecipeHuntList());
     widgets.add(SizedBox(height: 10,));
     widgets.addAll(_foodToSellList());
     widgets.add(SizedBox(height: 10,));
@@ -86,13 +87,19 @@ class _MainSheetState extends State<MainPanel> {
     return widgets;
   }
 
-  List<Widget> _recommendedRecipeHuntList(BuildContext context) {
+  List<Widget> _recommendedRecipeHuntList() {
     List<Widget> widgets  = [];
     widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
     },),),);
     for (Recipe recipe in recipes) {
-      widgets.add(RecommendedRecipeItem(recipe: recipe,));
+      widgets.add(GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: RecommendedRecipeItem(recipe: recipe,),
+        onTap: () {
+          Controls.of(context).changePanel(RecipeHuntPanel(recipe));
+        },
+      ));
       widgets.add(ListDivider(edgePadding: 15,));
     }
     widgets.removeLast();
@@ -101,7 +108,9 @@ class _MainSheetState extends State<MainPanel> {
 
   List<Widget> _foodToSellList() {
     List<Widget> widgets  = [];
-    widgets.add(ListHeader(title: "Food To Sell", trailing: ListActionButton(title: "View All", onPress: () {},),),);
+    widgets.add(ListHeader(title: "Food To Sell", trailing: ListActionButton(title: "View All", onPress: () {
+      Controls.of(context).changePanel(SellListPanel(MediaQuery.of(context).size.height));
+    },),),);
     for (Recipe recipe in recipes) {
       widgets.add(SellPreviewItem(recipe: recipe,));
       widgets.add(ListDivider(edgePadding: 15,));

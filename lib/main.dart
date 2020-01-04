@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/constants.dart';
-
-import 'base_page.dart';
+import 'package:food_hunt/base_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -31,7 +30,7 @@ class MyApp extends StatelessWidget {
           caption: TextStyle(fontSize: 13, color: darkGray)
         )
       ),
-      home: BasePage(title: 'Flutter Demo Home Page'),
+      home: BasePage(),
     );
   }
 }
