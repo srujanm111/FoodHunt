@@ -23,37 +23,42 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
 
   final markerKey = GlobalKey();
 
-  double latitude = 40.7484405;
-  double longitude = -73.9878531;
+  static double latitude = 40.7484405;
+  static double longitude = -73.9878531;
   static const String baseUrl =
       "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 
   GoogleMapController _controller;
 
   List<Marker> _markers = [];
-
   List<CustomMarker> _customMarkers = [];
+
+  List<Circle> _hintCircles = [];
 
   @override
   void initState() {
     super.initState();
     widget.controller?._addFunctions(
       _createMarker,
+      _createHintCircle,
       _clearMarkers,
+      _clearCircles,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    precacheImage(AssetImage('assets/icons/marker.png'), context);
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Stack(
         children: <Widget>[
-          Row(
+          Stack(
             children: _customMarkers,
           ),
           GoogleMap(
+            circles: Set.of(_hintCircles),
             initialCameraPosition: CameraPosition(
               target: LatLng(latitude, longitude),
               zoom: 12,
@@ -78,15 +83,32 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
         .loadString('assets/map_style.json');
     controller.setMapStyle(value);
   }
+  
+  void _createHintCircle(LatLng position) {
+    Circle(
+      center: position,
+      radius: 200,
+      fillColor: Color.fromRGBO(primary.red, primary.green, primary.blue, .3),
+      strokeColor: Color(0xFF7582FB),
+      circleId: CircleId(GlobalKey().toString()),
+    );
+  }
+  
+  void _clearCircles() {
+    setState(() {
+      _hintCircles.clear();
+    });
+  }
 
   void _addMarker(MarkerId markerId, LatLng position, Uint8List bitmap, VoidCallback onPress) {
-    _markers.add(Marker(
-      markerId: markerId,
-      position: position,
-      icon: BitmapDescriptor.fromBytes(bitmap),
-      onTap: onPress,
-    ));
-    setState(() {});
+    setState(() {
+      _markers.add(Marker(
+        markerId: markerId,
+        position: position,
+        icon: BitmapDescriptor.fromBytes(bitmap),
+        onTap: onPress,
+      ));
+    });
   }
 
   void _createMarker(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) {
@@ -100,9 +122,10 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
   }
 
   void _clearMarkers() {
-    _markers.clear();
-    _customMarkers.clear();
-    setState(() {});
+    setState(() {
+      _markers.clear();
+      _customMarkers.clear();
+    });
   }
 
 }
@@ -110,11 +133,15 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
 class FoodHuntMapController {
 
   Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) _createMarker;
+  Function(LatLng position) _createHintCircle;
   VoidCallback _clearMarkers;
+  VoidCallback _clearCircles;
 
   void _addFunctions(
     Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) createMarker,
+    Function(LatLng position) addHintCircle,
     VoidCallback clearMarkers,
+    VoidCallback clearCircles,
   ) {
     _createMarker = createMarker;
     _clearMarkers = clearMarkers;
@@ -126,6 +153,14 @@ class FoodHuntMapController {
 
   void clearMarkers() {
     _clearMarkers();
+  }
+  
+  void createHintCircle(LatLng position) {
+    _createHintCircle(position);
+  }
+
+  void clearCircles() {
+    _clearCircles();
   }
 
 }
@@ -165,10 +200,23 @@ class _CustomMarkerState extends State<CustomMarker> with AfterLayoutMixin {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: markerKey,
-      child: Image(
-        image: AssetImage('assets/icons/marker.png'),
-        height: 48,
-        width: 48,
+      child: Container(
+        height: 60,
+        width: 60,
+        child: Stack(
+          children: <Widget>[
+            Image(
+              image: AssetImage('assets/icons/marker.png'),
+              height: 60,
+              width: 60,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Center(child: widget.child),
+            ),
+
+          ],
+        ),
       ),
     );
   }

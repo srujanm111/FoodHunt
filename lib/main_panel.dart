@@ -3,6 +3,7 @@ import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/recipe_panels.dart';
 import 'package:food_hunt/sell_panels.dart';
 import 'package:food_hunt/social_panels.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'constants.dart';
 import 'panel_widgets.dart';
@@ -23,7 +24,7 @@ class _MainSheetState extends State<MainPanel> {
 
   List<Recipe> recipes = [
     Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
+      IngredientItem(Ingredient.bread, 10, 10, true),
       IngredientItem(Ingredient.tomato, 20, 20, true),
       IngredientItem(Ingredient.lettuce, 20, 20, false),
       IngredientItem(Ingredient.cheese, 20, 20, false),
@@ -99,6 +100,19 @@ class _MainSheetState extends State<MainPanel> {
         child: RecommendedRecipeItem(recipe: recipe,),
         onTap: () {
           Controls.of(context).changePanel(RecipeHuntPanel(recipe));
+          for (IngredientItem i in recipe.ingredients) {
+            Controls.of(context).mapController.createMarker(
+                Image(
+                  image: AssetImage('assets/icons/ingredients/${ingredientImageName[i.ingredient]}'),
+                  height: 30,
+                  width: 30,
+                  color: white,
+                ),
+                MarkerId(GlobalKey().toString()),
+                LatLng(i.latitude, i.longitude),
+                    () {});
+          }
+          Controls.of(context).mapController.clearMarkers();
         },
       ));
       widgets.add(ListDivider(edgePadding: 15,));

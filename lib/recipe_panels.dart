@@ -80,9 +80,6 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
         behavior: HitTestBehavior.translucent,
         child: RecipeItem(recipe: recipe, isRecommended: true,),
         onTap: () {
-          for (IngredientItem i in recipe.ingredients) {
-            Controls.of(context).mapController.createMarker(Container(), MarkerId(GlobalKey().toString()), LatLng(i.latitude, i.longitude), () {});
-          }
           Controls.of(context).changePanel(RecipeHuntPanel(recipe));
         },
       ));
@@ -109,6 +106,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
   
   @override
   Widget build(BuildContext context) {
+    _createMarkers();
     return Column(
       children: <Widget>[
         PanelTab(),
@@ -137,6 +135,21 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
     );
   }
 
+  void _createMarkers() {
+    for (IngredientItem i in widget.recipe.ingredients) {
+      Controls.of(context).mapController.createMarker(
+          Image(
+            image: AssetImage('assets/icons/ingredients/${ingredientImageName[i.ingredient]}'),
+            height: 30,
+            width: 30,
+            color: white,
+          ),
+          MarkerId(GlobalKey().toString()),
+          LatLng(i.latitude, i.longitude),
+              () {});
+    }
+  }
+
   Widget _sub() {
     return Row(
       children: <Widget>[
@@ -156,6 +169,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
       color: primary,
       child: Text("Start Hunt"),
       onPressed: () {
+        Controls.of(context).mapController.clearMarkers();
         Controls.of(context).startHunt(widget.recipe);
         Controls.of(context).changePanel(HuntPanel(widget.recipe));
       },
@@ -199,6 +213,7 @@ class _HuntPanelState extends State<HuntPanel> {
 
   @override
   Widget build(BuildContext context) {
+    _createMarkers();
     return Column(
       children: <Widget>[
         PanelTab(),
@@ -243,13 +258,33 @@ class _HuntPanelState extends State<HuntPanel> {
     );
   }
 
+  void _createMarkers() {
+    for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      Controls.of(context).mapController.createMarker(
+        Image(
+          image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'),
+          height: 30,
+          width: 30,
+          color: white,
+        ),
+        MarkerId(GlobalKey().toString()),
+        LatLng(ingredientItem.latitude, ingredientItem.longitude),
+        () {
+          if (!ingredientItem.found) {
+            Controls.of(context).huntForIngredient(ingredientItem);
+          }
+        });
+    }
+  }
+
   Widget _actionButton() {
     if (_isHuntDone()) {
       return _createButton("Finish", green, () {
-
+        Controls.of(context).mapController.clearMarkers();
       });
     } else {
       return _createButton("Exit", red, () {
+        Controls.of(context).mapController.clearMarkers();
         Controls.of(context).closeHunt();
         Controls.of(context).changePanel(RecipeHuntPanel(widget.recipe));
       });

@@ -120,8 +120,15 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       huntForIngredient: _huntForIngredient,
       closeHunt: _closeHunt,
       mapController: _foodHuntMapController,
+      refresh: _refresh,
       child: _currentPanel,
     );
+  }
+
+  void _refresh() {
+    setState(() {
+
+    });
   }
 
   Widget _body() {
@@ -229,6 +236,7 @@ class Controls extends InheritedWidget {
   final Function(Recipe recipe) startHunt;
   final Function(IngredientItem ingredient) huntForIngredient;
   final VoidCallback closeHunt;
+  final VoidCallback refresh;
 
   Controls({
     @required this.changePanel,
@@ -236,6 +244,7 @@ class Controls extends InheritedWidget {
     @required this.huntForIngredient,
     @required this.closeHunt,
     @required this.mapController,
+    @required this.refresh,
     @required Widget child,
   }) : super(child: child);
 
