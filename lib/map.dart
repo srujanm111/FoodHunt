@@ -1,7 +1,11 @@
 import 'dart:async';
-
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'constants.dart';
 
 class FoodHuntMap extends StatefulWidget {
 
@@ -17,23 +21,26 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
 
   static const String _API_KEY = 'AIzaSyAI4tTbcJYVABnw7tJ4iP-Sx4EFyRadrAo';
 
+  final markerKey = GlobalKey();
+
   double latitude = 40.7484405;
   double longitude = -73.9878531;
   static const String baseUrl =
       "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 
   GoogleMapController _controller;
-//  static final CameraPosition _myLocation = CameraPosition(
-//    target: LatLng(latitude, longitude),
-//    zoom: 12,
-//    bearing: 90.0,
-//    tilt: 50.0,
-//  );
+
+  List<Marker> _markers = [];
+
+  List<CustomMarker> _customMarkers = [];
 
   @override
   void initState() {
     super.initState();
-    widget.controller?._addFunctions(reset);
+    widget.controller?._addFunctions(
+      _createMarker,
+      _clearMarkers,
+    );
   }
 
   @override
@@ -41,25 +48,27 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      child: GestureDetector(
-        onScaleUpdate: (scaleUpdates) {
-          print(scaleUpdates.rotation);
-        },
-        child: GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: LatLng(latitude, longitude),
-            zoom: 12,
-            bearing: 90.0,
-            tilt: 50.0,
+      child: Stack(
+        children: <Widget>[
+          Row(
+            children: _customMarkers,
           ),
-          mapType: MapType.normal,
-          onMapCreated: (GoogleMapController controller) {
-            _setStyle(controller);
-            _controller = controller;
-          },
-          myLocationButtonEnabled: false,
-          //compassEnabled: false,
-        ),
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: LatLng(latitude, longitude),
+              zoom: 12,
+              bearing: 90.0,
+              tilt: 50.0,
+            ),
+            mapType: MapType.normal,
+            onMapCreated: (GoogleMapController controller) {
+              _setStyle(controller);
+              _controller = controller;
+            },
+            myLocationButtonEnabled: false,
+            markers: Set.of(_markers),
+          ),
+        ],
       ),
     );
   }
@@ -70,24 +79,116 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
     controller.setMapStyle(value);
   }
 
-  void reset() {
-    print('hi');
+  void _addMarker(MarkerId markerId, LatLng position, Uint8List bitmap, VoidCallback onPress) {
+    _markers.add(Marker(
+      markerId: markerId,
+      position: position,
+      icon: BitmapDescriptor.fromBytes(bitmap),
+      onTap: onPress,
+    ));
+    setState(() {});
+  }
+
+  void _createMarker(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) {
+    _customMarkers.add(CustomMarker(
+      child: icon,
+      createMarker: _addMarker,
+      markerId: markerId,
+      position: position,
+      onPress: onPress,
+    ));
+  }
+
+  void _clearMarkers() {
+    _markers.clear();
+    _customMarkers.clear();
+    setState(() {});
   }
 
 }
 
 class FoodHuntMapController {
 
-  VoidCallback _reset;
+  Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) _createMarker;
+  VoidCallback _clearMarkers;
 
   void _addFunctions(
-    VoidCallback reset
+    Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) createMarker,
+    VoidCallback clearMarkers,
   ) {
-    _reset = reset;
+    _createMarker = createMarker;
+    _clearMarkers = clearMarkers;
   }
 
-  void reset() {
-    _reset();
+  void createMarker(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) {
+    _createMarker(icon, markerId, position, onPress);
+  }
+
+  void clearMarkers() {
+    _clearMarkers();
   }
 
 }
+
+class CustomMarker extends StatefulWidget {
+
+  final Widget child;
+  final MarkerId markerId;
+  final LatLng position;
+  final Function(MarkerId markerId, LatLng position, Uint8List bitmap, VoidCallback onPress) createMarker;
+  final VoidCallback onPress;
+
+  CustomMarker({
+    this.child,
+    this.markerId,
+    this.position,
+    this.createMarker,
+    this.onPress
+  });
+
+  @override
+  _CustomMarkerState createState() => _CustomMarkerState();
+}
+
+class _CustomMarkerState extends State<CustomMarker> with AfterLayoutMixin {
+
+  final markerKey = GlobalKey();
+
+  Future<Uint8List> _getUint8List() async {
+    RenderRepaintBoundary boundary = markerKey.currentContext.findRenderObject();
+    var image = await boundary.toImage(pixelRatio: 2.0);
+    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData.buffer.asUint8List();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      key: markerKey,
+      child: Image(
+        image: AssetImage('assets/icons/marker.png'),
+        height: 48,
+        width: 48,
+      ),
+    );
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    _getUint8List().then((bitmap) {
+      widget.createMarker(widget.markerId, widget.position, bitmap, widget.onPress);
+    });
+  }
+}
+
+mixin AfterLayoutMixin<T extends StatefulWidget> on State<T> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => afterFirstLayout(context));
+  }
+
+  void afterFirstLayout(BuildContext context);
+}
+

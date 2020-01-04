@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/data_widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'constants.dart';
 import 'data_classes.dart';
 import 'main_panel.dart';
@@ -23,10 +24,10 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
   List<Recipe> recipes = [
     Recipe(Food.sandwich, 20, SellLocation.restaurant, [
       IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
+      IngredientItem(Ingredient.tomato, 30, 30, true),
+      IngredientItem(Ingredient.lettuce, 40, 40, false),
+      IngredientItem(Ingredient.cheese, 50, 50, false),
+      IngredientItem(Ingredient.turkey, 60, 60, false),
     ]),
     Recipe(Food.sandwich, 20, SellLocation.restaurant, [
       IngredientItem(Ingredient.bread, 20, 20, true),
@@ -79,6 +80,9 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
         behavior: HitTestBehavior.translucent,
         child: RecipeItem(recipe: recipe, isRecommended: true,),
         onTap: () {
+          for (IngredientItem i in recipe.ingredients) {
+            Controls.of(context).mapController.createMarker(Container(), MarkerId(GlobalKey().toString()), LatLng(i.latitude, i.longitude), () {});
+          }
           Controls.of(context).changePanel(RecipeHuntPanel(recipe));
         },
       ));
@@ -115,6 +119,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
               subTitle: _sub(),
               actionButton: _button(),
               onClose: () {
+                Controls.of(context).mapController.clearMarkers();
                 Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
               },
             ),

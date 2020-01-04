@@ -22,12 +22,11 @@ class BasePage extends StatefulWidget {
 class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin {
 
   AnimationController _panelAnimationController;
-
   FoodHuntMapController _foodHuntMapController;
   
   Panel _currentPanel;
-
   DisplayBar _displayBar;
+  InfoBar _infoBar;
 
   @override
   void initState(){
@@ -48,6 +47,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       _currentPanel = MainPanel(MediaQuery.of(context).size.height);
     }
     return Scaffold(
+      appBar: _displayBar,
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
@@ -57,7 +57,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
           Container(),
           //the actual sliding part
           _panel(),
-          _displayBar != null ? _createDisplayBar() : Container(),
+          _infoBar != null ? _createInfoBar() : Container(),
         ],
       ),
     );
@@ -133,13 +133,6 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _createDisplayBar() {
-    return Positioned(
-      top: 0.0,
-      child: _displayBar,
-    );
-  }
-
   void _changePanelContents(Widget panel) {
     _panelAnimationController.fling(velocity: -1.0).then((x) {
       setState(() {
@@ -166,17 +159,29 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
   void _huntForIngredient(IngredientItem ingredient) {
     _displayBar = DisplayBar(
       icon: Container(
-          height: 50,
-          width: 50,
+          height: 40,
+          width: 40,
           child: Image(image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredient.ingredient]}'), color: white,)
       ),
-      text: Text("Hunting For ${ingredientName[ingredient.ingredient]}", style: TextStyle(fontSize: 28, color: white, fontWeight: FontWeight.w700),),
+      text: Text("Hunting For ${ingredientName[ingredient.ingredient]}", style: TextStyle(fontSize: 26, color: white, fontWeight: FontWeight.w700),),
+    );
+    _infoBar = InfoBar(
+      Text("24.7 mi", style: TextStyle(fontSize: 21, color: white),)
     );
     setState(() {});
   }
 
   void _closeHunt() {
     _displayBar = null;
+    _infoBar = null;
+  }
+
+  Widget _createInfoBar() {
+    return Positioned(
+      top: 10,
+      left: 15,
+      child: _infoBar,
+    );
   }
 
   @override
@@ -257,7 +262,7 @@ abstract class Panel extends StatefulWidget {
 
 }
 
-class DisplayBar extends StatefulWidget {
+class DisplayBar extends StatelessWidget implements PreferredSizeWidget {
 
   final Widget icon;
   final Widget text;
@@ -265,31 +270,53 @@ class DisplayBar extends StatefulWidget {
   DisplayBar({this.icon, this.text});
 
   @override
-  _DisplayBarState createState() => _DisplayBarState();
-}
-
-class _DisplayBarState extends State<DisplayBar> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 120,
       color: primary,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 15),
+        padding: const EdgeInsets.only(bottom: 12),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              widget.icon,
+              icon,
               SizedBox(width: 15,),
-              widget.text,
+              text,
             ],
           ),
         ),
       ),
     );
   }
+
+  @override
+  // TODO: implement preferredSize
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
+class InfoBar extends StatelessWidget {
+
+  final Widget text;
+
+  InfoBar(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFF7582FB),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      child: Center(
+        child: text,
+      ),
+    );
+  }
+
+
 }
