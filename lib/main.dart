@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/constants.dart';
 import 'package:food_hunt/base_page.dart';
+import 'package:food_hunt/game_manager.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setUp().then((x) {
+    runApp(MyApp());
+  });
+}
+
+Future<void> setUp() async {
+  GameManager gameManager = GameManager.instance;
+  await gameManager.requestPermissions();
+  await gameManager.initStoredGameData();
+  await gameManager.updateRecipeList();
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

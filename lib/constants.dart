@@ -74,8 +74,7 @@ enum SellLocation {
   restaurant,
   bar,
   cafe,
-  brunch,
-  dessert
+  bakery
 }
 
 const Map<Food, String> foodImageName = {
@@ -112,6 +111,24 @@ const Map<Food, String> foodName = {
   Food.sandwich : "Sandwich",
   Food.specialCoffee : "Special Coffee",
   Food.specialSoda : "Special Soda",
+};
+
+const Map<String, Food> nameFood = {
+  "Breakfast Burrito" : Food.breakfastBurrito,
+  "Burrito" : Food.burrito,
+  "Cake" : Food.cake,
+  "Club Soda" : Food.clubSoda,
+  "Deluxe Ice Cream" : Food.deluxeIceCream,
+  "Fried Rice" : Food.friedRice,
+  "Fruit Smoothie" : Food.fruitSmoothie,
+  "Hot Dog" : Food.hotDog,
+  "Pancakes" : Food.pancakes,
+  "Pasta" : Food.pasta,
+  "Pizza" : Food.pizza,
+  "Pumpkin Pie" : Food.pumpkinPie,
+  "Sandwich" : Food.sandwich,
+  "Special Coffee" : Food.specialCoffee,
+  "Special Soda" : Food.specialSoda,
 };
 
 const Map<Ingredient, String> ingredientImageName = {
@@ -194,18 +211,63 @@ const Map<Ingredient, String> ingredientName = {
   Ingredient.whippedCream : "Whipped Cream",
 };
 
+const Map<String, Ingredient> nameIngredient = {
+  "Bananas" : Ingredient.bananas,
+  "Basil" : Ingredient.basil,
+  "Beans" : Ingredient.beans,
+  "Bread" : Ingredient.bread,
+  "Butter" : Ingredient.butter,
+  "Candy" : Ingredient.candy,
+  "Carbonated Water" : Ingredient.carbonatedWater,
+  "Carrots" : Ingredient.carrots,
+  "Cheese" : Ingredient.cheese,
+  "Chicken" : Ingredient.chicken,
+  "Chocolate" : Ingredient.chocolate,
+  "Cinnamon" : Ingredient.cinnamon,
+  "Coffee Beans" : Ingredient.coffeeBeans,
+  "Corn Syrup" : Ingredient.cornSyrup,
+  "Eggs" : Ingredient.eggs,
+  "Flour" : Ingredient.flour,
+  "Ice" : Ingredient.ice,
+  "Ketchup" : Ingredient.ketchup,
+  "Lettuce" : Ingredient.lettuce,
+  "Milk" : Ingredient.milk,
+  "Mustard" : Ingredient.mustard,
+  "Onion" : Ingredient.onion,
+  "Orange Juice" : Ingredient.orangeJuice,
+  "Orange" : Ingredient.orange,
+  "Peas" : Ingredient.peas,
+  "Pepperoni" : Ingredient.pepperoni,
+  "Pumpkin" : Ingredient.pumpkin,
+  "Purified Water" : Ingredient.purifiedWater,
+  "Rice" : Ingredient.rice,
+  "Sausage" : Ingredient.sausage,
+  "Soy Sauce" : Ingredient.soySauce,
+  "Strawberries" : Ingredient.strawberries,
+  "Sugar" : Ingredient.sugar,
+  "Tomato" : Ingredient.tomato,
+  "Tortilla" : Ingredient.tortilla,
+  "Turkey" : Ingredient.turkey,
+  "Whipped Cream" : Ingredient.whippedCream,
+};
+
 const Map<SellLocation, String> sellLocationImageName = {
   SellLocation.bar : "bar.png",
-  SellLocation.brunch : "brunch.png",
   SellLocation.cafe : "cafe.png",
-  SellLocation.dessert : "dessert.png",
+  SellLocation.bakery : "bakery.png",
   SellLocation.restaurant : "restaurant.png",
 };
 
 const Map<SellLocation, String> sellLocationName = {
   SellLocation.bar : "Bar",
-  SellLocation.brunch : "Brunch",
   SellLocation.cafe : "Cafe",
-  SellLocation.dessert : "Dessert",
+  SellLocation.bakery : "Bakery",
   SellLocation.restaurant : "Restaurant",
+};
+
+const Map<String, SellLocation> nameSellLocation = {
+  "Bar" : SellLocation.bar,
+  "Cafe" : SellLocation.cafe,
+  "Bakery" : SellLocation.bakery,
+  "Restaurant" : SellLocation.restaurant,
 };

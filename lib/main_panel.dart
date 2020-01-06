@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
+import 'package:food_hunt/game_manager.dart';
 import 'package:food_hunt/recipe_panels.dart';
 import 'package:food_hunt/sell_panels.dart';
 import 'package:food_hunt/social_panels.dart';
@@ -21,44 +22,6 @@ class MainPanel extends Panel {
 }
 
 class _MainSheetState extends State<MainPanel> {
-
-  List<Recipe> recipes = [
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 10, 10, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-  ];
-
-  List<Friend> friends = [
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +57,7 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
     },),),);
-    for (Recipe recipe in recipes) {
+    for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeCompleted) {
       widgets.add(GestureDetector(
         behavior: HitTestBehavior.translucent,
         child: RecommendedRecipeItem(recipe: recipe,),
@@ -126,7 +89,7 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Food To Sell", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(SellListPanel(MediaQuery.of(context).size.height));
     },),),);
-    for (Recipe recipe in recipes) {
+    for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeSold) {
       widgets.add(SellPreviewItem(recipe: recipe,));
       widgets.add(ListDivider(edgePadding: 15,));
     }
@@ -139,7 +102,7 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Friends Near You", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(SocialListPanel(MediaQuery.of(context).size.height));
     },),),);
-    for (Friend friend in friends) {
+    for (Friend friend in GameManager.instance.storedGameData.friends) {
       widgets.add(FriendsNearYouItem(friend: friend,));
       widgets.add(ListDivider(edgePadding: 15,));
     }

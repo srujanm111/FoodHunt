@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
+import 'package:food_hunt/game_manager.dart';
 import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/data_widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,37 +21,6 @@ class RecipesListPanel extends Panel {
 }
 
 class _RecipesListPanelState extends State<RecipesListPanel> {
-
-  List<Recipe> recipes = [
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 30, 30, true),
-      IngredientItem(Ingredient.lettuce, 40, 40, false),
-      IngredientItem(Ingredient.cheese, 50, 50, false),
-      IngredientItem(Ingredient.turkey, 60, 60, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +45,7 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
   
   List<Widget> _contents() {
     List<Widget> widgets = [];
-    for (Recipe recipe in recipes) {
+    for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeCompleted) {
       widgets.add(GestureDetector(
         behavior: HitTestBehavior.translucent,
         child: RecipeItem(recipe: recipe, isRecommended: true,),
@@ -117,6 +87,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
               subTitle: _sub(),
               actionButton: _button(),
               onClose: () {
+                Controls.of(context).mapController.clearCircles();
                 Controls.of(context).mapController.clearMarkers();
                 Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
               },
@@ -136,17 +107,19 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
   }
 
   void _createMarkers() {
-    for (IngredientItem i in widget.recipe.ingredients) {
+    for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      if (!ingredientItem.found) {
+        Controls.of(context).mapController.createHintCircle(LatLng(ingredientItem.latitude, ingredientItem.longitude));
+      }
       Controls.of(context).mapController.createMarker(
-          Image(
-            image: AssetImage('assets/icons/ingredients/${ingredientImageName[i.ingredient]}'),
-            height: 30,
-            width: 30,
-            color: white,
-          ),
-          MarkerId(GlobalKey().toString()),
-          LatLng(i.latitude, i.longitude),
-              () {});
+        Image(
+          image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'),
+          height: 30,
+          width: 30,
+          color: white,
+        ),
+        MarkerId(GlobalKey().toString()),
+        LatLng(ingredientItem.latitude, ingredientItem.longitude), null);
     }
   }
 
@@ -260,6 +233,9 @@ class _HuntPanelState extends State<HuntPanel> {
 
   void _createMarkers() {
     for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      if (!ingredientItem.found) {
+        Controls.of(context).mapController.createHintCircle(LatLng(ingredientItem.latitude, ingredientItem.longitude));
+      }
       Controls.of(context).mapController.createMarker(
         Image(
           image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'),

@@ -85,13 +85,13 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
   }
   
   void _createHintCircle(LatLng position) {
-    Circle(
+    _hintCircles.add(Circle(
       center: position,
       radius: 200,
       fillColor: Color.fromRGBO(primary.red, primary.green, primary.blue, .3),
       strokeColor: Color(0xFF7582FB),
       circleId: CircleId(GlobalKey().toString()),
-    );
+    ));
   }
   
   void _clearCircles() {
@@ -139,12 +139,14 @@ class FoodHuntMapController {
 
   void _addFunctions(
     Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) createMarker,
-    Function(LatLng position) addHintCircle,
+    Function(LatLng position) createHintCircle,
     VoidCallback clearMarkers,
     VoidCallback clearCircles,
   ) {
     _createMarker = createMarker;
     _clearMarkers = clearMarkers;
+    _createHintCircle = createHintCircle;
+    _clearCircles = clearCircles;
   }
 
   void createMarker(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) {

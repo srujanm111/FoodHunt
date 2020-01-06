@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_hunt/game_manager.dart';
 import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/recipe_panels.dart';
 
@@ -20,37 +21,6 @@ class SellListPanel extends Panel {
 }
 
 class _SellListPanelState extends State<SellListPanel> {
-
-  List<Recipe> recipes = [
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-    Recipe(Food.sandwich, 20, SellLocation.restaurant, [
-      IngredientItem(Ingredient.bread, 20, 20, true),
-      IngredientItem(Ingredient.tomato, 20, 20, true),
-      IngredientItem(Ingredient.lettuce, 20, 20, false),
-      IngredientItem(Ingredient.cheese, 20, 20, false),
-      IngredientItem(Ingredient.turkey, 20, 20, false),
-    ]),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +45,7 @@ class _SellListPanelState extends State<SellListPanel> {
 
   List<Widget> _contents() {
     List<Widget> widgets = [];
-    for (Recipe recipe in recipes) {
+    for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeSold) {
       widgets.add(GestureDetector(
         behavior: HitTestBehavior.translucent,
         child: SellRecipeItem(recipe: recipe,),

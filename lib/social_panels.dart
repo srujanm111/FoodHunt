@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:food_hunt/data_widgets.dart';
+import 'package:food_hunt/game_manager.dart';
 import 'package:food_hunt/main_panel.dart';
 import 'package:food_hunt/panel_widgets.dart';
 
@@ -20,13 +21,6 @@ class SocialListPanel extends Panel {
 }
 
 class _SocialListPanelState extends State<SocialListPanel> {
-
-  List<Friend> friends = [
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-    RegisteredFriend("Kamal", "Jana", 20, 20, 20, "000-000-0000", true),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +58,7 @@ class _SocialListPanelState extends State<SocialListPanel> {
   List<Widget> _friendsNearYouList() {
     List<Widget> widgets  = [];
     widgets.add(ListHeader(title: "Friends Near You",));
-    for (Friend friend in friends) {
+    for (Friend friend in GameManager.instance.storedGameData.friends) {
       widgets.add(FriendItem(friend: friend,));
       widgets.add(ListDivider(edgePadding: 15,));
     }
