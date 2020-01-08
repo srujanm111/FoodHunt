@@ -57,7 +57,9 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Recommended Recipe Hunts", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(RecipesListPanel(MediaQuery.of(context).size.height));
     },),),);
+    int i = 0;
     for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeCompleted) {
+      if (i == 3) break;
       widgets.add(GestureDetector(
         behavior: HitTestBehavior.translucent,
         child: RecommendedRecipeItem(recipe: recipe,),
@@ -79,6 +81,7 @@ class _MainSheetState extends State<MainPanel> {
         },
       ));
       widgets.add(ListDivider(edgePadding: 15,));
+      i++;
     }
     widgets.removeLast();
     return widgets;
@@ -89,9 +92,12 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Food To Sell", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(SellListPanel(MediaQuery.of(context).size.height));
     },),),);
+    int i = 0;
     for (Recipe recipe in GameManager.instance.storedGameData.recipesToBeSold) {
+      if (i == 3) break;
       widgets.add(SellPreviewItem(recipe: recipe,));
       widgets.add(ListDivider(edgePadding: 15,));
+      i++;
     }
     widgets.removeLast();
     return widgets;
@@ -102,9 +108,12 @@ class _MainSheetState extends State<MainPanel> {
     widgets.add(ListHeader(title: "Friends Near You", trailing: ListActionButton(title: "View All", onPress: () {
       Controls.of(context).changePanel(SocialListPanel(MediaQuery.of(context).size.height));
     },),),);
+    int i = 0;
     for (Friend friend in GameManager.instance.storedGameData.friends) {
+      if (i == 3) break;
       widgets.add(FriendsNearYouItem(friend: friend,));
       widgets.add(ListDivider(edgePadding: 15,));
+      i++;
     }
     widgets.removeLast();
     return widgets;

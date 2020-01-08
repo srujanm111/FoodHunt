@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:food_hunt/game_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'constants.dart';
@@ -60,7 +61,7 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
           GoogleMap(
             circles: Set.of(_hintCircles),
             initialCameraPosition: CameraPosition(
-              target: LatLng(latitude, longitude),
+              target: LatLng(GameManager.instance.storedGameData.startPosition.latitude, GameManager.instance.storedGameData.startPosition.longitude),
               zoom: 12,
               bearing: 90.0,
               tilt: 50.0,

@@ -1,36 +1,37 @@
+import 'package:food_hunt/database.dart';
+
 import 'constants.dart';
 
 class Recipe {
 
-  final String _foodId = "food";
-  final String _sellPriceId = "sellPrice";
-  final String _sellLocationId = "sellLocation";
-  final String _ingredientsId = "ingredients";
-
+  int id;
   Food _food;
   int _sellPrice;
   SellLocation _sellLocation;
-  List<IngredientItem> _ingredients;
+  List<IngredientItem> ingredients;
 
   Recipe(
-      this._food, this._sellPrice, this._sellLocation, this._ingredients);
+      this._food, this._sellPrice, this._sellLocation, this.ingredients);
 
-  Recipe.fromJson(Map<String, dynamic> json) {
-    _food = nameFood[json[_foodId]];
-    _sellPrice = json[_sellPriceId];
-    _sellLocation = nameSellLocation[_sellLocationId];
-    _ingredients = (json[_ingredientsId] as List).map((i) => IngredientItem.fromJson(i)).toList();
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      foodLabel: foodName[_food],
+      sellPriceLabel: _sellPrice,
+      sellLocationLabel: sellLocationName[_sellLocation],
+    };
+    if (id != null) {
+      map[idLabel] = id;
+    }
+    return map;
   }
 
-  Map<String, dynamic> toJson() => {
-    _foodId : foodName[_food],
-    _sellPriceId : _sellPrice,
-    _sellLocationId : sellLocationName[_sellLocation],
-    _ingredientsId : _ingredients
-  };
-
-  List<IngredientItem> get ingredients => _ingredients;
-
+  Recipe.fromMap(Map<String, dynamic> map) {
+    id = map[idLabel];
+    _food = nameFood[map[foodLabel]];
+    _sellPrice = map[sellPriceLabel];
+    _sellLocation = nameSellLocation[map[sellLocationLabel]];
+  }
+  
   SellLocation get sellLocation => _sellLocation;
 
   int get sellPrice => _sellPrice;
@@ -40,11 +41,7 @@ class Recipe {
 
 class IngredientItem {
 
-  String _ingredientId = "ingredient";
-  String _latitudeId = "latitude";
-  String _longitudeId = "longitude";
-  String _foundId = "found";
-
+  int id;
   Ingredient _ingredient;
   double _latitude;
   double _longitude;
@@ -53,19 +50,26 @@ class IngredientItem {
   IngredientItem(
       this._ingredient, this._latitude, this._longitude, this._found);
 
-  IngredientItem.fromJson(Map<String, dynamic> json) {
-    _ingredient = nameIngredient[json[_ingredientId]];
-    _latitude = json[_latitudeId];
-    _longitude = json[_longitudeId];
-    _found = json[_foundId];
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      ingredientLabel: ingredientName[_ingredient],
+      latitudeLabel: _latitude,
+      longitudeLabel: _longitude,
+      isFoundLabel: _found ? 1 : 0,
+    };
+    if (id != null) {
+      map[idLabel] = id;
+    }
+    return map;
   }
 
-  Map<String, dynamic> toJson() => {
-    _ingredientId : _ingredient,
-    _latitudeId : _latitude,
-    _longitudeId : _longitude,
-    _foundId : _found,
-  };
+  IngredientItem.fromMap(Map<String, dynamic> map) {
+    id = map[idLabel];
+    _ingredient = nameIngredient[map[ingredientLabel]];
+    _latitude = map[latitudeLabel];
+    _longitude = map[longitudeLabel];
+    _found = map[isFoundLabel] == 1;
+  }
 
   bool get found => _found;
 
@@ -97,6 +101,8 @@ class User {
   String get firstName => _firstName;
 
   String get phoneNumber => _phoneNumber;
+
+  int get money => _money;
 }
 
 abstract class Friend {
@@ -109,26 +115,11 @@ abstract class Friend {
   String get lastName => _lastName;
 
   String get firstName => _firstName;
-
-  static Friend fromJson(Map<String, dynamic> json) {
-    if (json.keys.length == 7) {
-      return RegisteredFriend.fromJson(json);
-    } else {
-      return UnregisteredFriend.fromJson(json);
-    }
-  }
-
-  Map<String, dynamic> toJson();
 }
 
 class RegisteredFriend extends Friend {
 
-  String _moneyId = "money";
-  String _latitudeId = "latitude";
-  String _longitudeId = "longitude";
-  String _phoneNumberId = "phoneNumber";
-  String _isInContactsId = "isInContacts";
-
+  int id;
   int _money;
   double _latitude;
   double _longitude;
@@ -138,23 +129,28 @@ class RegisteredFriend extends Friend {
   RegisteredFriend(String firstName, String lastName, this._money, this._latitude, this._longitude,
       this._phoneNumber, this._isInContacts) : super(firstName, lastName);
 
-  RegisteredFriend.fromJson(Map<String, dynamic> json) : super(json["firstName"], json["lastName"]) {
-    _money = json[_moneyId];
-    _latitude = json[_latitudeId];
-    _longitude = json[_longitudeId];
-    _phoneNumber = json[_phoneNumberId];
-    _isInContacts = json[_isInContactsId];
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      latitudeLabel: _latitude,
+      longitudeLabel: _longitude,
+      phoneNumberLabel: _phoneNumber,
+      isInContactsLabel: _isInContacts ? 1 : 0,
+      firstNameLabel: _firstName,
+      lastNameLabel: _lastName
+    };
+    if (id != null) {
+      map[idLabel] = id;
+    }
+    return map;
   }
 
-  Map<String, dynamic> toJson() => {
-    "firstName" : _firstName,
-    "lastName" : _lastName,
-    _moneyId : _money,
-    _latitudeId : _latitude,
-    _longitudeId : _longitude,
-    _phoneNumberId : _phoneNumber,
-    _isInContactsId : _isInContacts,
-  };
+  RegisteredFriend.fromMap(Map<String, dynamic> map) : super(map[firstNameLabel], map[lastNameLabel]) {
+    id = map[idLabel];
+    _phoneNumber = map[phoneNumberLabel];
+    _latitude = map[latitudeLabel];
+    _longitude = map[longitudeLabel];
+    _isInContacts = map[isInContacts] == 1;
+  }
 
   bool get isInContacts => _isInContacts;
 
@@ -174,16 +170,6 @@ class UnregisteredFriend extends Friend {
   String _areaCode;
 
   UnregisteredFriend(String firstName, String lastName, this._areaCode) : super(firstName, lastName);
-
-  UnregisteredFriend.fromJson(Map<String, dynamic> json) : super(json["firstName"], json["lastName"]) {
-    _areaCode = json[_areaCodeId];
-  }
-
-  Map<String, dynamic> toJson() => {
-    "firstName" : _firstName,
-    "lastName" : _lastName,
-    _areaCodeId : _areaCode
-  };
 
   String get areaCode => _areaCode;
 }

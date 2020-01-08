@@ -4,12 +4,13 @@ import 'dart:io';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:sqflite/sqflite.dart';
 import 'constants.dart';
 import 'data_classes.dart';
+import 'database.dart';
 
 class GameManager {
 
@@ -18,13 +19,22 @@ class GameManager {
   _LocationUtility _locationUtility;
   _RecipeUtility _recipeUtility;
   _StoredGameData _storedGameData;
-  _GameDataFileManager _gameDataFileManager;
+  GameDatabaseManager _gameDatabaseManager;
   _FriendsUtility _friendsUtility;
 
   GameManager._internal() {
     _locationUtility = _LocationUtility(Geolocator(), LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10));
     _recipeUtility = _RecipeUtility();
-    _friendsUtility = _FriendsUtility();
+  }
+
+  Future<void> setUpManager() async {
+    await requestPermissions();
+    await initGameData();
+    await updateRecipeList();
+  }
+
+  Future<void> initFriendsUtility() async {
+    _friendsUtility = await _FriendsUtility.init();
   }
 
   Future<void> requestPermissions() async {
@@ -32,17 +42,46 @@ class GameManager {
     // if PermissionStatus.denied, quit app
   }
 
-  Future<void> initStoredGameData() async {
-    _gameDataFileManager = await _GameDataFileManager.init();
+  Future<void> initGameData() async {
+    await initFriendsUtility();
+    await _initGameDatabaseManager();
     bool firstUse = await isFirstUse();
     if (firstUse) {
-      Position position = await _locationUtility.getCurrentPosition();
-      List<Recipe> recipes = await _recipeUtility.generateRecipes(position, 10);
-      List<Friend> friends = await _friendsUtility.getFriends();
-      _storedGameData = _StoredGameData(position, recipes, friends);
+      _storedGameData = await _createNewGameData();
+      _storeGameData();
     } else {
-      _storedGameData = _StoredGameData.fromJson(_gameDataFileManager.readJSON());
+      _storedGameData = await _getGameDataFromPersisted();
     }
+  }
+
+  Future<_StoredGameData> _getGameDataFromPersisted() async {
+    Position position = await _locationUtility.getCurrentPosition();
+    List<Recipe> recipes = await _gameDatabaseManager.getRecipes();
+    List<Friend> friends = await _gameDatabaseManager.getFriends();
+    return _StoredGameData(position, recipes, friends);
+  }
+  
+  Future<_StoredGameData> _createNewGameData() async {
+    Position position = await _locationUtility.getCurrentPosition();
+    List<Recipe> recipes = await _recipeUtility.generateRecipes(position, 10);
+    List<Friend> friends = _friendsUtility.registeredFriends;
+    return _StoredGameData(position, recipes, friends);
+  }
+
+  Future<void> _storeGameData() async {
+    for (Recipe recipe in _storedGameData.recipesToBeCompleted) {
+      _gameDatabaseManager.upsertRecipe(recipe, false);
+    }
+    for (Recipe recipe in _storedGameData.recipesToBeSold) {
+      _gameDatabaseManager.upsertRecipe(recipe, true);
+    }
+    for (RegisteredFriend friend in _storedGameData.friends) {
+      _gameDatabaseManager.upsertFriend(friend);
+    }
+  }
+
+  Future<void> _initGameDatabaseManager() async {
+    _gameDatabaseManager = await GameDatabaseManager.init();
   }
 
   Future<bool> isFirstUse() async {
@@ -51,22 +90,18 @@ class GameManager {
       prefs.setBool("isFirstUse", false);
       return true;
     }
-    return true; //change back later
+    return false; //change back later
   }
 
   Future<void> updateRecipeList() async {
-    Position current = await _locationUtility.getCurrentPosition();
-    Position previous = _storedGameData.startPosition;
-    double distance = await _locationUtility.distanceBetweenPoints(current.latitude, current.longitude, previous.longitude, previous.longitude);
-    if (distance > 100) {
-      _storedGameData.recipesToBeCompleted.clear();
-      List<Recipe> newRecipes = await _recipeUtility.generateRecipes(current, 10);
-      _storedGameData.recipesToBeCompleted.addAll(newRecipes);
-    } else if (_storedGameData.recipesToBeCompleted.length < 10) {
+    if (_storedGameData.recipesToBeCompleted.length < 10) {
+      Position current = await _locationUtility.getCurrentPosition();
       List<Recipe> newRecipes = await _recipeUtility.generateRecipes(current, 10 - _storedGameData.recipesToBeCompleted.length);
-      _storedGameData.recipesToBeCompleted.addAll(newRecipes);
+      for (Recipe recipe in newRecipes) {
+        _storedGameData.recipesToBeCompleted.add(recipe);
+        _gameDatabaseManager.upsertRecipe(recipe, false);
+      }
     }
-    _storedGameData.startPosition = await _locationUtility.getCurrentPosition();
   }
 
   static GameManager get instance {
@@ -79,52 +114,18 @@ class GameManager {
   _LocationUtility get locationUtility => _locationUtility;
 
   _StoredGameData get storedGameData => _storedGameData;
-}
 
-class _GameDataFileManager {
-
-  File _gameDataJSON;
-
-  _GameDataFileManager(this._gameDataJSON);
-
-  static Future<_GameDataFileManager> init() async {
-    File gameDataFile = await getGameDataFile();
-    return _GameDataFileManager(gameDataFile);
-  }
-
-  static Future<File> getGameDataFile() async {
-    String fileName = "game_data.json";
-    Directory dir = await getApplicationDocumentsDirectory();
-    File jsonData = new File(dir.path + "/" + fileName);
-    if (!jsonData.existsSync()) {
-      jsonData.createSync();
-    }
-    return jsonData;
-  }
-
-  void writeJSON(Map<String, dynamic> data) {
-    _gameDataJSON.writeAsStringSync(json.encode(data));
-  }
-
-  Map<String, dynamic> readJSON() {
-    return json.decode(_gameDataJSON.readAsStringSync());
-  }
-
+  _FriendsUtility get friendsUtility => _friendsUtility;
 }
 
 class _StoredGameData {
   
-  final String _positionId = "position";
-  final String _recipesToCompleteId = "recipesToBeCompleted";
-  final String _recipesToSellId = "recipesToBeSold";
-  final String _friendsId = "friends";
-
   Position startPosition;
   List<Recipe> _recipesToBeCompleted;
   List<Recipe> _recipesToBeSold;
-  List<Friend> _friends;
+  List<RegisteredFriend> _friends;
 
-  _StoredGameData(Position position, List<Recipe> recipes, List<Friend> friends) {
+  _StoredGameData(Position position, List<Recipe> recipes, List<RegisteredFriend> friends) {
     _recipesToBeCompleted = [];
     _recipesToBeSold = [];
     startPosition = position;
@@ -145,21 +146,7 @@ class _StoredGameData {
     }
   }
 
-  _StoredGameData.fromJson(Map<String, dynamic> json) {
-    startPosition = Position.fromMap(json[_positionId]);
-    _recipesToBeCompleted = (json[_recipesToCompleteId] as List).map((i) => Recipe.fromJson(i)).toList();
-    _recipesToBeSold = (json[_recipesToSellId] as List).map((i) => Recipe.fromJson(i)).toList();
-    _friends = (json[_friendsId] as List).map((i) => Friend.fromJson(i)).toList();
-  }
-
-  Map<String, dynamic> toJson() => {
-    _positionId : startPosition,
-    _recipesToCompleteId : _recipesToBeCompleted,
-    _recipesToSellId : _recipesToBeSold,
-    _friendsId : _friends,
-  };
-
-  List<Friend> get friends => _friends;
+  List<RegisteredFriend> get friends => _friends;
 
   List<Recipe> get recipesToBeSold => _recipesToBeSold;
 
@@ -233,19 +220,42 @@ class _RecipeUtility {
 
 class _FriendsUtility {
 
-    Future<List<Contact>> _getContacts() async {
-      return (await ContactsService.getContacts(withThumbnails: false)).toList();
-    }
+  List<RegisteredFriend> _registeredFriends;
+  List<UnregisteredFriend> _unregisteredFriends;
 
-    Future<List<Friend>> getFriends() async {
-      List<Friend> friends = [];
-      List<Contact> contacts = await _getContacts();
-      for (Contact contact in contacts) {
-        List<Item> phoneNumberItems = contact.phones.toList();
-        // check if contact exists in firestore and check which number exists
-        friends.add(UnregisteredFriend(contact.givenName, contact.familyName, "hi"));
+  _FriendsUtility() {
+    _registeredFriends = [];
+    _unregisteredFriends = [];
+  }
+
+  static Future<_FriendsUtility> init() async {
+    _FriendsUtility friendsUtility = _FriendsUtility();
+    List<Contact> contacts = await friendsUtility._getContacts();
+    await friendsUtility._categorizeFriends(contacts);
+    return friendsUtility;
+  }
+
+  Future<List<Contact>> _getContacts() async {
+    return (await ContactsService.getContacts(withThumbnails: false)).toList();
+  }
+
+  Future<void> _categorizeFriends(List<Contact> contacts) async {
+    for (Contact contact in contacts) {
+      List<Item> phoneNumberItems = contact.phones.toList();
+
+      bool isRegistered = false;
+      // check if contact exists in firestore and check which number exists
+      if (!isRegistered) {
+        _registeredFriends.add(RegisteredFriend(contact.givenName, contact.familyName, 20, 20, 20, phoneNumberItems[0].value, true));
+      } else {
+        _unregisteredFriends.add(UnregisteredFriend(contact.givenName, contact.familyName, "hi"));
       }
-      return friends;
     }
+  }
+
+  List<UnregisteredFriend> get unregisteredFriends => _unregisteredFriends;
+
+  List<RegisteredFriend> get registeredFriends => _registeredFriends;
+
 
 }

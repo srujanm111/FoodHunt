@@ -12,9 +12,7 @@ void main() {
 
 Future<void> setUp() async {
   GameManager gameManager = GameManager.instance;
-  await gameManager.requestPermissions();
-  await gameManager.initStoredGameData();
-  await gameManager.updateRecipeList();
+  await gameManager.setUpManager();
 }
 
 class MyApp extends StatelessWidget {
