@@ -70,13 +70,19 @@ class GameManager {
 
   Future<void> _storeGameData() async {
     for (Recipe recipe in _storedGameData.recipesToBeCompleted) {
-      _gameDatabaseManager.upsertRecipe(recipe, false);
+      await _gameDatabaseManager.upsertRecipe(recipe, false);
+      for (IngredientItem ingredientItem in recipe.ingredients) {
+        await _gameDatabaseManager.upsertIngredientItem(ingredientItem, recipe.id);
+      }
     }
     for (Recipe recipe in _storedGameData.recipesToBeSold) {
-      _gameDatabaseManager.upsertRecipe(recipe, true);
+      await _gameDatabaseManager.upsertRecipe(recipe, true);
+      for (IngredientItem ingredientItem in recipe.ingredients) {
+        await _gameDatabaseManager.upsertIngredientItem(ingredientItem, recipe.id);
+      }
     }
     for (RegisteredFriend friend in _storedGameData.friends) {
-      _gameDatabaseManager.upsertFriend(friend);
+      await _gameDatabaseManager.upsertFriend(friend);
     }
   }
 
@@ -116,6 +122,8 @@ class GameManager {
   _StoredGameData get storedGameData => _storedGameData;
 
   _FriendsUtility get friendsUtility => _friendsUtility;
+
+  GameDatabaseManager get gameDatabaseManager => _gameDatabaseManager;
 }
 
 class _StoredGameData {
@@ -212,9 +220,13 @@ class _RecipeUtility {
     return recipes;
   }
 
-  List<PlaceDetails> _getNearbyLocations(Position position) {}
+  List<PlaceDetails> _getNearbyLocations(Position position) {
 
-  List<PlaceDetails> _chooseIngredients(int count) {}
+  }
+
+  List<PlaceDetails> _chooseIngredients(int count) {
+
+  }
 
 }
 
@@ -230,8 +242,11 @@ class _FriendsUtility {
 
   static Future<_FriendsUtility> init() async {
     _FriendsUtility friendsUtility = _FriendsUtility();
-    List<Contact> contacts = await friendsUtility._getContacts();
-    await friendsUtility._categorizeFriends(contacts);
+//    List<Contact> contacts = await friendsUtility._getContacts();
+//    await friendsUtility._categorizeFriends(contacts);
+    for (int i = 0; i < 5; i++) {
+      friendsUtility._registeredFriends.add(RegisteredFriend("Sriram", "Mupparapu", 20, 50, 50, "000-000-0000", true));
+    }
     return friendsUtility;
   }
 

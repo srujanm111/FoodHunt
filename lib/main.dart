@@ -13,6 +13,7 @@ void main() {
 Future<void> setUp() async {
   GameManager gameManager = GameManager.instance;
   await gameManager.setUpManager();
+
 }
 
 class MyApp extends StatelessWidget {

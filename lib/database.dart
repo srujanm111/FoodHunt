@@ -30,7 +30,6 @@ class GameDatabaseManager {
   static Future<GameDatabaseManager> init() async {
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'food_hunt.db');
-
     GameDatabaseManager _gameDatabaseManager = new GameDatabaseManager();
     _gameDatabaseManager._database = await openDatabase(path, version: 1,
       onCreate: (Database _database, int version) async {
@@ -111,9 +110,9 @@ class GameDatabaseManager {
   }
 
   Future<void> upsertIngredientItem(IngredientItem item, int key) async {
+    Map<String, dynamic> map = item.toMap();
+    map['recipe'] = key;
     if (item.id == null) {
-      Map<String, dynamic> map = item.toMap();
-      map['recipe'] = key;
       item.id = await _database.insert(ingredientItemsTableLabel, map);
     } else {
       await _database.update(ingredientItemsTableLabel, item.toMap(), where: "$idLabel = ?", whereArgs: [item.id]);
