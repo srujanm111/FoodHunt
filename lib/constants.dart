@@ -271,3 +271,181 @@ const Map<String, SellLocation> nameSellLocation = {
   "Bakery" : SellLocation.bakery,
   "Restaurant" : SellLocation.restaurant,
 };
+
+const Map<SellLocation, String> sellLocationSearchParameter = {
+  SellLocation.bar : "bar",
+  SellLocation.cafe : "cafe",
+  SellLocation.bakery : "bakery",
+  SellLocation.restaurant : "restaurant",
+};
+
+class RecipeData {
+  Food food;
+  List<Ingredient> ingredients;
+  SellLocation sellLocation;
+
+  RecipeData({this.food, this.ingredients, this.sellLocation});
+}
+
+List<RecipeData> recipes = [
+  RecipeData(
+    food: Food.pasta,
+    ingredients: [
+      Ingredient.tomato,
+      Ingredient.flour,
+      Ingredient.eggs,
+      Ingredient.onion,
+      Ingredient.basil,
+    ],
+    sellLocation: SellLocation.restaurant,
+  ),
+  RecipeData(
+    food: Food.sandwich,
+    ingredients: [
+      Ingredient.bread,
+      Ingredient.tomato,
+      Ingredient.lettuce,
+      Ingredient.cheese,
+      Ingredient.turkey,
+    ],
+    sellLocation: SellLocation.cafe,
+  ),
+  RecipeData(
+    food: Food.hotDog,
+    ingredients: [
+      Ingredient.sausage,
+      Ingredient.bread,
+      Ingredient.ketchup,
+      Ingredient.mustard,
+    ],
+    sellLocation: SellLocation.restaurant,
+  ),
+  RecipeData(
+    food: Food.burrito,
+    ingredients: [
+      Ingredient.tortilla,
+      Ingredient.cheese,
+      Ingredient.beans,
+      Ingredient.lettuce,
+      Ingredient.chicken,
+    ],
+    sellLocation: SellLocation.restaurant,
+  ),
+  RecipeData(
+    food: Food.specialCoffee,
+    ingredients: [
+      Ingredient.coffeeBeans,
+      Ingredient.sugar,
+      Ingredient.chocolate,
+      Ingredient.whippedCream,
+    ],
+    sellLocation: SellLocation.cafe,
+  ),
+  RecipeData(
+    food: Food.pizza,
+    ingredients: [
+      Ingredient.flour,
+      Ingredient.cheese,
+      Ingredient.pepperoni,
+      Ingredient.tomato,
+    ],
+    sellLocation: SellLocation.bakery,
+  ),
+  RecipeData(
+    food: Food.deluxeIceCream,
+    ingredients: [
+      Ingredient.milk,
+      Ingredient.strawberries,
+      Ingredient.bananas,
+      Ingredient.sugar,
+      Ingredient.chocolate,
+      Ingredient.candy,
+    ],
+    sellLocation: SellLocation.cafe,
+  ),
+  RecipeData(
+    food: Food.friedRice,
+    ingredients: [
+      Ingredient.rice,
+      Ingredient.carrots,
+      Ingredient.peas,
+      Ingredient.eggs,
+      Ingredient.soySauce,
+    ],
+    sellLocation: SellLocation.restaurant,
+  ),
+  RecipeData(
+    food: Food.pumpkinPie,
+    ingredients: [
+      Ingredient.pumpkin,
+      Ingredient.flour,
+      Ingredient.whippedCream,
+      Ingredient.sugar,
+      Ingredient.cinnamon,
+      Ingredient.eggs,
+    ],
+    sellLocation: SellLocation.bakery,
+  ),
+  RecipeData(
+    food: Food.pancakes,
+    ingredients: [
+      Ingredient.flour,
+      Ingredient.butter,
+      Ingredient.eggs,
+      Ingredient.milk,
+      Ingredient.sugar,
+    ],
+    sellLocation: SellLocation.bakery,
+  ),
+  RecipeData(
+    food: Food.fruitSmoothie,
+    ingredients: [
+      Ingredient.milk,
+      Ingredient.ice,
+      Ingredient.orange,
+      Ingredient.strawberries,
+      Ingredient.bananas,
+    ],
+    sellLocation: SellLocation.bar,
+  ),
+  RecipeData(
+    food: Food.specialSoda,
+    ingredients: [
+      Ingredient.sugar,
+      Ingredient.orangeJuice,
+      Ingredient.cornSyrup,
+      Ingredient.purifiedWater,
+    ],
+    sellLocation: SellLocation.bar,
+  ),
+  RecipeData(
+    food: Food.breakfastBurrito,
+    ingredients: [
+      Ingredient.tortilla,
+      Ingredient.tomato,
+      Ingredient.eggs,
+      Ingredient.cheese,
+    ],
+    sellLocation: SellLocation.restaurant,
+  ),
+  RecipeData(
+    food: Food.cake,
+    ingredients: [
+      Ingredient.butter,
+      Ingredient.eggs,
+      Ingredient.flour,
+      Ingredient.whippedCream,
+      Ingredient.chocolate,
+      Ingredient.milk,
+    ],
+    sellLocation: SellLocation.bakery,
+  ),
+  RecipeData(
+    food: Food.clubSoda,
+    ingredients: [
+      Ingredient.purifiedWater,
+      Ingredient.carbonatedWater,
+    ],
+    sellLocation: SellLocation.bar,
+  ),
+];

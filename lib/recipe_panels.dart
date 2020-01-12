@@ -30,8 +30,7 @@ class _RecipesListPanelState extends State<RecipesListPanel> {
         PanelHeader(title: "Recipes", onClose: () {
           Controls.of(context).changePanel(MainPanel(MediaQuery.of(context).size.height));
         },),
-        Container(
-          height: MediaQuery.of(context).size.height * RecipesListPanel.scale - 80,
+        Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -143,6 +142,7 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
       child: Text("Start Hunt"),
       onPressed: () {
         Controls.of(context).mapController.clearMarkers();
+        Controls.of(context).mapController.clearCircles();
         Controls.of(context).startHunt(widget.recipe);
         Controls.of(context).changePanel(HuntPanel(widget.recipe));
       },
@@ -162,7 +162,14 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
   List<Widget> _ingredientList() {
     List<Widget> widgets = [];
     for (IngredientItem ingredientItem in widget.recipe.ingredients) {
-      widgets.add(IngredientListItem(ingredientItem));
+      widgets.add(GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        child: IngredientListItem(ingredientItem),
+        onTap: () {
+          Controls.of(context).closePanel();
+          Controls.of(context).mapController.animateTo(LatLng(ingredientItem.latitude, ingredientItem.longitude));
+        },
+      ),);
       widgets.add(ListDivider(edgePadding: 20,));
     }
     widgets.removeLast();
@@ -257,10 +264,12 @@ class _HuntPanelState extends State<HuntPanel> {
     if (_isHuntDone()) {
       return _createButton("Finish", green, () {
         Controls.of(context).mapController.clearMarkers();
+        Controls.of(context).mapController.clearCircles();
       });
     } else {
       return _createButton("Exit", red, () {
         Controls.of(context).mapController.clearMarkers();
+        Controls.of(context).mapController.clearCircles();
         Controls.of(context).closeHunt();
         Controls.of(context).changePanel(RecipeHuntPanel(widget.recipe));
       });

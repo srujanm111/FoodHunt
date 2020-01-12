@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food_hunt/game_manager.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'constants.dart';
 import 'data_classes.dart';
 
@@ -527,6 +529,178 @@ class _IngredientListItemState extends State<IngredientListItem> {
     } else {
       return "Area";
     }
+  }
+
+}
+
+class SellLocationItem extends StatelessWidget {
+
+  final PlacesSearchResult place;
+  final double miles;
+
+  SellLocationItem(this.place, this.miles);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Container(
+            height: 80,
+            width: 80,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: Image.network(_photoURL(),).image,
+                fit: BoxFit.cover
+              ),
+              borderRadius: BorderRadius.circular(14)
+            ),
+          ),
+          SizedBox(width: 20,),
+          Container(
+            width: MediaQuery.of(context).size.width - 175,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(place.name, style: Theme.of(context).textTheme.headline, overflow: TextOverflow.fade,),
+                SizedBox(height: 2,),
+                _locationDetails(context),
+                _ratingDetails(context)
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: _sellLocationIcon(),
+          )
+        ],
+      ),
+    );
+  }
+
+  String _photoURL() {
+    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photoReference}&key=${GameManager.apiKey}";
+  }
+
+  Widget _locationDetails(BuildContext context) {
+    return Text("${place.vicinity.substring(place.vicinity.indexOf(", ") + 2)} • ${miles.toStringAsFixed(2)} mi", style: Theme.of(context).textTheme.subtitle,);
+  }
+
+  Widget _ratingDetails(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Image(
+          height: 16,
+          width: 16,
+          image: AssetImage("assets/icons/star.png"),
+          color: yellow,
+        ),
+        Text("${place.rating} • ", style: Theme.of(context).textTheme.subtitle.apply(color: yellow),),
+        Text("${_priceLevel()} bonus", style: Theme.of(context).textTheme.subtitle.apply(color: green),),
+      ],
+    );
+  }
+
+  String _priceLevel() {
+    if (place.priceLevel == null) return "\$";
+    String price = "\$";
+    for (int i = 1; i < place.priceLevel.index; i++) {
+      price += "\$";
+    }
+    return price;
+  }
+
+  Widget _sellLocationIcon() {
+    return Container(
+      height: 33,
+      width: 33,
+      decoration: BoxDecoration(
+          color: primary,
+          shape: BoxShape.circle
+      ),
+      child: Center(
+        child: Image.network(
+          place.icon,
+          color: white,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class ReviewItem extends StatelessWidget {
+
+  final Review review;
+
+  ReviewItem(this.review);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _profilePhoto(),
+        SizedBox(width: 20,),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(review.authorName, style: Theme.of(context).textTheme.subtitle,),
+                  _ratingMeter()
+                ],
+              ),
+              SizedBox(height: 10,),
+              Container(
+                child: Text(review.text),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _profilePhoto() {
+    return Container(
+      height: 50,
+      width: 50,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: Image.network(review.profilePhotoUrl).image
+        )
+      ),
+    );
+  }
+
+  Widget _ratingMeter() {
+    List<Widget> stars = [];
+    for (int i = 0; i < review.rating; i++) {
+      stars.add(Image(
+        height: 16,
+        width: 16,
+        image: AssetImage("assets/icons/star.png"),
+        color: yellow,
+      ));
+    }
+    for (int i = review.rating; i < 5; i++) {
+      stars.add(Image(
+        height: 16,
+        width: 16,
+        image: AssetImage("assets/icons/star.png"),
+        color: lightGray,
+      ));
+    }
+    return Row(
+      children: stars,
+    );
   }
 
 }

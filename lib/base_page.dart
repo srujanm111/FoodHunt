@@ -120,15 +120,10 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       huntForIngredient: _huntForIngredient,
       closeHunt: _closeHunt,
       mapController: _foodHuntMapController,
-      refresh: _refresh,
       child: _currentPanel,
+      closePanel: _closePanel,
+      openPanel: _openPanel,
     );
-  }
-
-  void _refresh() {
-    setState(() {
-
-    });
   }
 
   Widget _body() {
@@ -151,6 +146,14 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
         _panelAnimationController.animateTo(_closedRatio());
       }
     });
+  }
+
+  void _closePanel() {
+    _panelAnimationController.animateTo(_closedRatio());
+  }
+
+  void _openPanel() {
+    _panelAnimationController.fling(velocity: 1.0);
   }
 
   void _startHunt(Recipe recipe) {
@@ -236,7 +239,8 @@ class Controls extends InheritedWidget {
   final Function(Recipe recipe) startHunt;
   final Function(IngredientItem ingredient) huntForIngredient;
   final VoidCallback closeHunt;
-  final VoidCallback refresh;
+  final VoidCallback closePanel;
+  final VoidCallback openPanel;
 
   Controls({
     @required this.changePanel,
@@ -244,7 +248,8 @@ class Controls extends InheritedWidget {
     @required this.huntForIngredient,
     @required this.closeHunt,
     @required this.mapController,
-    @required this.refresh,
+    @required this.closePanel,
+    @required this.openPanel,
     @required Widget child,
   }) : super(child: child);
 

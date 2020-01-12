@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/directions.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sqflite/sqflite.dart';
 import 'constants.dart';
 import 'data_classes.dart';
 import 'database.dart';
 
 class GameManager {
+
+  static const String apiKey = 'AIzaSyAI4tTbcJYVABnw7tJ4iP-Sx4EFyRadrAo';
 
   static GameManager _instance;
 
@@ -21,29 +20,49 @@ class GameManager {
   _StoredGameData _storedGameData;
   GameDatabaseManager _gameDatabaseManager;
   _FriendsUtility _friendsUtility;
+  GoogleMapsPlaces _googleMapsPlaces;
+  GoogleMapsDirections _googleMapsDirections;
 
   GameManager._internal() {
     _locationUtility = _LocationUtility(Geolocator(), LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10));
     _recipeUtility = _RecipeUtility();
   }
 
-  Future<void> setUpManager() async {
-    await requestPermissions();
-    await initGameData();
-    await updateRecipeList();
+  Future<void> test() async {
+    await _initGoogleMapsServices();
+    Position position = await _locationUtility.getCurrentPosition();
+    PlacesSearchResponse response = await _googleMapsPlaces.searchNearbyWithRankBy(Location(position.latitude, position.longitude), "distance", type: "airport");
+    print(response.toJson());
+    for (PlacesSearchResult result in response.results) {
+      print(result.vicinity);
+      print((await GameManager.instance._locationUtility.distanceBetweenPoints(result.geometry.location.lat, result.geometry.location.lng, position.latitude, position.longitude)));
+    }
   }
 
-  Future<void> initFriendsUtility() async {
+  Future<void> setUpManager() async {
+    await _requestPermissions();
+    await initGameData();
+    await updateRecipeList();
+    //await test();
+  }
+
+  Future<void> _initGoogleMapsServices() async {
+    _googleMapsPlaces = new GoogleMapsPlaces(apiKey: GameManager.apiKey);
+    _googleMapsDirections = new GoogleMapsDirections(apiKey: GameManager.apiKey);
+  }
+
+  Future<void> _initFriendsUtility() async {
     _friendsUtility = await _FriendsUtility.init();
   }
 
-  Future<void> requestPermissions() async {
+  Future<void> _requestPermissions() async {
     Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.contacts]);
     // if PermissionStatus.denied, quit app
   }
 
   Future<void> initGameData() async {
-    await initFriendsUtility();
+    await _initGoogleMapsServices();
+    await _initFriendsUtility();
     await _initGameDatabaseManager();
     bool firstUse = await isFirstUse();
     if (firstUse) {
@@ -96,7 +115,7 @@ class GameManager {
       prefs.setBool("isFirstUse", false);
       return true;
     }
-    return false; //change back later
+    return false;
   }
 
   Future<void> updateRecipeList() async {
@@ -124,6 +143,10 @@ class GameManager {
   _FriendsUtility get friendsUtility => _friendsUtility;
 
   GameDatabaseManager get gameDatabaseManager => _gameDatabaseManager;
+
+  GoogleMapsPlaces get googleMapsPlaces => _googleMapsPlaces;
+
+  GoogleMapsDirections get googleMapsDirections => _googleMapsDirections;
 }
 
 class _StoredGameData {
@@ -190,7 +213,7 @@ class _LocationUtility {
   }
 
   Future<double> distanceBetweenPoints(double latitude1, double longitude1, double latitude2, double longitude2) async {
-    return await _geolocator.distanceBetween(latitude1, longitude1, latitude2, longitude2);
+    return (await _geolocator.distanceBetween(latitude1, longitude1, latitude2, longitude2)) * 0.00062137;
   }
 
 }
@@ -198,6 +221,7 @@ class _LocationUtility {
 class _RecipeUtility {
 
   Future<List<Recipe>> generateRecipes(Position position, int count) async {
+    await _getNearbyLocations(position);
     List<Recipe> recipes = [];
     for (int i = 0; i < count; i++) {
       recipes.add(Recipe(Food.sandwich, 20, SellLocation.restaurant, [
@@ -220,8 +244,13 @@ class _RecipeUtility {
     return recipes;
   }
 
-  List<PlaceDetails> _getNearbyLocations(Position position) {
-
+  Future<List<PlaceDetails>> _getNearbyLocations(Position position) async {
+    final places = new GoogleMapsPlaces(apiKey: GameManager.apiKey);
+    PlacesSearchResponse response = await places.searchNearbyWithRankBy(Location(position.latitude, position.longitude), "distance", type: "grocery_or_supermarket");
+    for (PlacesSearchResult result in response.results) {
+      print((await GameManager.instance._locationUtility.distanceBetweenPoints(result.geometry.location.lat, result.geometry.location.lng, position.latitude, position.longitude)));
+    }
+    return null;
   }
 
   List<PlaceDetails> _chooseIngredients(int count) {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:food_hunt/data_classes.dart';
 import 'package:food_hunt/game_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -20,8 +21,6 @@ class FoodHuntMap extends StatefulWidget {
 
 class _FoodHuntMapState extends State<FoodHuntMap> {
 
-  static const String _API_KEY = 'AIzaSyAI4tTbcJYVABnw7tJ4iP-Sx4EFyRadrAo';
-
   final markerKey = GlobalKey();
 
   static double latitude = 40.7484405;
@@ -36,6 +35,8 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
 
   List<Circle> _hintCircles = [];
 
+  List<Polyline> _polylines = [];
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +45,9 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
       _createHintCircle,
       _clearMarkers,
       _clearCircles,
+      _animateTo,
+      _drawPolyline,
+      _clearPolylines,
     );
   }
 
@@ -59,12 +63,12 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
             children: _customMarkers,
           ),
           GoogleMap(
+            myLocationEnabled: true,
             circles: Set.of(_hintCircles),
             initialCameraPosition: CameraPosition(
               target: LatLng(GameManager.instance.storedGameData.startPosition.latitude, GameManager.instance.storedGameData.startPosition.longitude),
               zoom: 12,
-              bearing: 90.0,
-              tilt: 50.0,
+              tilt: 10.0,
             ),
             mapType: MapType.normal,
             onMapCreated: (GoogleMapController controller) {
@@ -73,6 +77,7 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
             },
             myLocationButtonEnabled: false,
             markers: Set.of(_markers),
+            polylines: Set.of(_polylines),
           ),
         ],
       ),
@@ -98,6 +103,18 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
   void _clearCircles() {
     setState(() {
       _hintCircles.clear();
+    });
+  }
+
+  void _drawPolyline(Polyline route) {
+    setState(() {
+      _polylines.add(route);
+    });
+  }
+
+  void _clearPolylines() {
+    setState(() {
+      _polylines.clear();
     });
   }
 
@@ -129,6 +146,10 @@ class _FoodHuntMapState extends State<FoodHuntMap> {
     });
   }
 
+  void _animateTo(LatLng position) {
+    _controller.animateCamera(CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)));
+  }
+
 }
 
 class FoodHuntMapController {
@@ -137,17 +158,26 @@ class FoodHuntMapController {
   Function(LatLng position) _createHintCircle;
   VoidCallback _clearMarkers;
   VoidCallback _clearCircles;
+  Function(LatLng position) _animateTo;
+  Function(Polyline route) _drawPolyLine;
+  VoidCallback _clearPolyLines;
 
   void _addFunctions(
     Function(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) createMarker,
     Function(LatLng position) createHintCircle,
     VoidCallback clearMarkers,
     VoidCallback clearCircles,
+    Function(LatLng position) animateTo,
+    Function(Polyline route) drawPolyLine,
+    VoidCallback clearPolyLines,
   ) {
     _createMarker = createMarker;
     _clearMarkers = clearMarkers;
     _createHintCircle = createHintCircle;
     _clearCircles = clearCircles;
+    _animateTo = animateTo;
+    _drawPolyLine = drawPolyLine;
+    _clearPolyLines = clearPolyLines;
   }
 
   void createMarker(Widget icon, MarkerId markerId, LatLng position, VoidCallback onPress) {
@@ -164,6 +194,18 @@ class FoodHuntMapController {
 
   void clearCircles() {
     _clearCircles();
+  }
+
+  void animateTo(LatLng position) {
+    _animateTo(position);
+  }
+
+  void drawPolyLine(Polyline route) {
+    _drawPolyLine(route);
+  }
+
+  void clearPolyLines() {
+    _clearPolyLines();
   }
 
 }

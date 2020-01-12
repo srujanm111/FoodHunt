@@ -28,8 +28,7 @@ class _MainSheetState extends State<MainPanel> {
     return Column(
       children: <Widget>[
         PanelTab(),
-        Container(
-          height: MediaQuery.of(context).size.height * MainPanel.scale - 25,
+        Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
