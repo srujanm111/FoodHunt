@@ -287,7 +287,7 @@ class RecipeData {
   RecipeData({this.food, this.ingredients, this.sellLocation});
 }
 
-List<RecipeData> recipes = [
+List<RecipeData> recipesList = [
   RecipeData(
     food: Food.pasta,
     ingredients: [

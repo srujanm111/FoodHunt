@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:food_hunt/base_page.dart';
 import 'package:food_hunt/game_manager.dart';
 import 'package:food_hunt/panel_widgets.dart';
 import 'package:food_hunt/data_widgets.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'constants.dart';
 import 'data_classes.dart';
@@ -141,10 +144,8 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
       color: primary,
       child: Text("Start Hunt"),
       onPressed: () {
-        Controls.of(context).mapController.clearMarkers();
-        Controls.of(context).mapController.clearCircles();
-        Controls.of(context).startHunt(widget.recipe);
-        Controls.of(context).changePanel(HuntPanel(widget.recipe));
+        IngredientItem ingredient = Controls.of(context).startHunt(widget.recipe);
+        Controls.of(context).changePanel(HuntPanel(widget.recipe, ingredient));
       },
     );
   }
@@ -182,8 +183,9 @@ class _RecipesHuntPanelState extends State<RecipeHuntPanel> {
 class HuntPanel extends Panel {
 
   final Recipe recipe;
+  IngredientItem currentIngredient;
 
-  HuntPanel(this.recipe) : super(panelHeightClosed: 114, panelHeightOpen: 200.0 + recipe.ingredients.length * 50);
+  HuntPanel(this.recipe, this.currentIngredient) : super(panelHeightClosed: 114, panelHeightOpen: 200.0 + recipe.ingredients.length * 50, isOpenByDefault: false);
 
   @override
   _HuntPanelState createState() => _HuntPanelState();
@@ -191,9 +193,19 @@ class HuntPanel extends Panel {
 
 class _HuntPanelState extends State<HuntPanel> {
 
+  StreamSubscription locationSubscription;
+
+  @override
+  void initState() {
+    _startListening();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    _createMarkers();
+    GameManager.instance.locationUtility.getCurrentPosition().then((position) {
+      _createMarkers(position);
+    });
     return Column(
       children: <Widget>[
         PanelTab(),
@@ -238,36 +250,67 @@ class _HuntPanelState extends State<HuntPanel> {
     );
   }
 
-  void _createMarkers() {
+  void _startListening() async {
+    locationSubscription = GameManager.instance.locationUtility.getPositionStream().listen((position) {
+      print('hi');
+      if (position == null) return;
+      GameManager.instance.locationUtility.distanceBetweenPoints(
+        position.latitude,
+        position.longitude,
+        widget.currentIngredient.latitude,
+        widget.currentIngredient.longitude).then(
+      (dist) {
+        Controls.of(context).updateInfoBar("${dist.toStringAsFixed(1)} mi");
+      });
+      setState(() {
+        _createMarkers(position);
+      });
+    });
+  }
+
+  void _createMarkers(Position position) async {
+    Controls.of(context).mapController.clearCircles();
+    Controls.of(context).mapController.clearMarkers();
     for (IngredientItem ingredientItem in widget.recipe.ingredients) {
+      double dist = await GameManager.instance.locationUtility.distanceBetweenPoints(
+          position.latitude,
+          position.longitude,
+          ingredientItem.latitude,
+          ingredientItem.longitude);
+      if (dist < 10) continue;
       if (!ingredientItem.found) {
         Controls.of(context).mapController.createHintCircle(LatLng(ingredientItem.latitude, ingredientItem.longitude));
       }
-      Controls.of(context).mapController.createMarker(
-        Image(
-          image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'),
-          height: 30,
-          width: 30,
-          color: white,
-        ),
-        MarkerId(GlobalKey().toString()),
-        LatLng(ingredientItem.latitude, ingredientItem.longitude),
-        () {
-          if (!ingredientItem.found) {
-            Controls.of(context).huntForIngredient(ingredientItem);
-          }
-        });
+      precacheImage(AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'), context).then((x) {
+        Controls.of(context).mapController.createMarker(
+            Image(
+              image: AssetImage('assets/icons/ingredients/${ingredientImageName[ingredientItem.ingredient]}'),
+              height: 30,
+              width: 30,
+              color: white,
+            ),
+            MarkerId(GlobalKey().toString()),
+            LatLng(ingredientItem.latitude, ingredientItem.longitude),
+                () {
+              if (!ingredientItem.found) {
+                Controls.of(context).huntForIngredient(ingredientItem);
+              }
+            });
+      });
+
     }
   }
 
   Widget _actionButton() {
     if (_isHuntDone()) {
       return _createButton("Finish", green, () {
+        locationSubscription.cancel();
         Controls.of(context).mapController.clearMarkers();
         Controls.of(context).mapController.clearCircles();
       });
     } else {
       return _createButton("Exit", red, () {
+        locationSubscription.cancel();
         Controls.of(context).mapController.clearMarkers();
         Controls.of(context).mapController.clearCircles();
         Controls.of(context).closeHunt();
@@ -319,8 +362,23 @@ class _HuntPanelState extends State<HuntPanel> {
         behavior: HitTestBehavior.translucent,
         child: IngredientListItem(ingredientItem),
         onTap: () {
+          Controls.of(context).closePanel();
+          Controls.of(context).mapController.animateTo(LatLng(ingredientItem.latitude, ingredientItem.longitude));
           if (!ingredientItem.found) {
             Controls.of(context).huntForIngredient(ingredientItem);
+            GameManager.instance.locationUtility.getCurrentPosition().then((position) {
+              setState(() {
+                widget.currentIngredient = ingredientItem;
+              });
+              GameManager.instance.locationUtility.distanceBetweenPoints(
+                position.latitude,
+                position.longitude,
+                widget.currentIngredient.latitude,
+                widget.currentIngredient.longitude).then(
+              (dist) {
+                Controls.of(context).updateInfoBar("${dist.toStringAsFixed(1)} mi");
+              });
+            });
           }
         },
       ));
@@ -328,6 +386,12 @@ class _HuntPanelState extends State<HuntPanel> {
     }
     widgets.removeLast();
     return widgets;
+  }
+
+  @override
+  void dispose() {
+    locationSubscription.cancel();
+    super.dispose();
   }
 
 }

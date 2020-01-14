@@ -123,6 +123,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       child: _currentPanel,
       closePanel: _closePanel,
       openPanel: _openPanel,
+      updateInfoBar: _updateInfoBar,
     );
   }
 
@@ -156,14 +157,23 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
     _panelAnimationController.fling(velocity: 1.0);
   }
 
-  void _startHunt(Recipe recipe) {
+  IngredientItem _startHunt(Recipe recipe) {
     // replace with ingredient closest to current location
     for (IngredientItem ingredientItem in recipe.ingredients) {
       if (!ingredientItem.found) {
         _huntForIngredient(ingredientItem);
-        break;
+        return ingredientItem;
       }
     }
+  }
+
+  void _updateInfoBar(String text) {
+    print('hiho');
+    setState(() {
+      _infoBar = InfoBar(
+          Text(text, style: TextStyle(fontSize: 21, color: white),)
+      );
+    });
   }
 
   void _huntForIngredient(IngredientItem ingredient) {
@@ -176,7 +186,7 @@ class _BasePageState extends State<BasePage> with SingleTickerProviderStateMixin
       text: Text("Hunting For ${ingredientName[ingredient.ingredient]}", style: TextStyle(fontSize: 26, color: white, fontWeight: FontWeight.w700),),
     );
     _infoBar = InfoBar(
-      Text("24.7 mi", style: TextStyle(fontSize: 21, color: white),)
+      Text("Distance", style: TextStyle(fontSize: 21, color: white),)
     );
     setState(() {});
   }
@@ -236,11 +246,12 @@ class Controls extends InheritedWidget {
 
   final FoodHuntMapController mapController;
   final Function(Panel panel) changePanel;
-  final Function(Recipe recipe) startHunt;
+  final IngredientItem Function(Recipe recipe) startHunt;
   final Function(IngredientItem ingredient) huntForIngredient;
   final VoidCallback closeHunt;
   final VoidCallback closePanel;
   final VoidCallback openPanel;
+  final Function(String text) updateInfoBar;
 
   Controls({
     @required this.changePanel,
@@ -250,6 +261,7 @@ class Controls extends InheritedWidget {
     @required this.mapController,
     @required this.closePanel,
     @required this.openPanel,
+    @required this.updateInfoBar,
     @required Widget child,
   }) : super(child: child);
 

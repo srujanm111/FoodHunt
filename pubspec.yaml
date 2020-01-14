@@ -23,6 +23,17 @@ dependencies:
   shared_preferences: ^0.5.6
   contacts_service: ^0.3.10
   permission_handler: ^4.0.0
+  barcode_scan: ^1.0.0
+  qr_flutter: ^3.2.0
+
+  firebase_core: ^0.4.3+2
+  geoflutterfire: ^2.0.3+8
+  firebase_analytics: ^5.0.9
+  cloud_firestore: ^0.13.0+1
+  firebase_auth: ^0.15.3+1
+  google_sign_in: ^4.1.1
+  rxdart: ^0.23.1
+
   flutter:
     sdk: flutter
   sqflite:
