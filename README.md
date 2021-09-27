@@ -10,6 +10,8 @@ Used Flutter to create a reactive modal UI that updates itself while listening t
 
 Developed a Google Maps canvas integration that draws custom map elements and navigation paths.
 
+See **lib/** for Dart code.
+
 ## Features
 Hints based on location:
  - When over 5 miles away from an ingredient, semi-transparent circles with a radius of 0.5 miles indicate the region where it may be hidden
