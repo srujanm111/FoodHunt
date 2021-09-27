@@ -23,4 +23,6 @@ Dynamic scavnger hunt generation:
  - Random locations are human reachable as they are only chosen if they are near an actual address
 
 ## Screenshots
-![](screenshots/menu_open.png)
+| ![](screenshots/menu_open.png) | ![](screenshots/menu_open.png) |
+|--|--|
+| ![](screenshots/menu_open.png) | ![](screenshots/menu_open.png) |
