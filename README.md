@@ -1,7 +1,14 @@
 # FoodHunt
 
-FoodHunt is an interactive geolocation “foodie” game where players become freelance
-chefs in a quest to create and sell the most food items. Players follow generated recipes based on their current location to search for ingredients in the digital world, using an elegant in-game map to find their way around the real world (players have to traverse the real world by foot or vehicle). With the help of hints based on their location, players must find all the ingredients listed in a recipe to finish the quest.
+FoodHunt is an interactive geolocation game where players become freelance chefs in a quest to create and sell the most food items. Players follow generated recipes based on their current location to search for ingredients in the digital world, using an elegant in-game map to find their way around the real world (players have to traverse the real world by foot or vehicle). With the help of hints based on their location, players must find all the ingredients listed in a recipe to finish the quest.
+
+## Development
+
+Used the Google Maps API to query places based on user location and place type and for information about places, including directions, descriptions, and pictures.
+
+Used Flutter to create a reactive modal UI that updates itself while listening to location data streams.
+
+Developed a Google Maps canvas integration that draws custom map elements and navigation paths.
 
 ## Features
 Hints based on location:
