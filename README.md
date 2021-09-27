@@ -23,6 +23,9 @@ Dynamic scavnger hunt generation:
  - Random locations are human reachable as they are only chosen if they are near an actual address
 
 ## Screenshots
-| ![](screenshots/menu_open.png) | ![](screenshots/menu_open.png) |
-|--|--|
-| ![](screenshots/menu_open.png) | ![](screenshots/menu_open.png) |
+| ![](screenshots/menu_open.png) | ![](screenshots/menu_closed.png) | ![](screenshots/recipes_open.png) |
+|--|--|--|
+| ![](screenshots/recipes_closed.png) | ![](screenshots/recipe_hunt_open.png) |![](screenshots/recipe_hunt_closed.png) |
+| ![](screenshots/active_hunt_open.png) | ![](screenshots/active_hunt_closed.png) |![](screenshots/ingredient_location.png) |
+| ![](screenshots/completed_hunt.png) | ![](screenshots/complete_message.png) |![](screenshots/sell_list.png) |
+| ![](screenshots/restaurant_info_closed.jpeg) | ![](screenshots/restaurant_info_open1.jpeg) |![](screenshots/restaurant_info_open2.jpeg) |
